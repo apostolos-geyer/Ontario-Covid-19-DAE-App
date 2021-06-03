@@ -6,8 +6,9 @@ This is a Java project me and my friend are working on a little bit for school, 
 Very early development and testing, however, we aim to have created a runnable visual environment with some cool features.
 
 ### Authors
-Nathan Johnson \
-Apostolos Paul Geyer
+Apostolos Paul Geyer \
+Nathan Johnson 
+
 
 ### Acknowledgements
 Everyone who has contributed to the library [JTablesaw](https://github.com/jtablesaw/tablesaw), which is the backbone of this project. 
