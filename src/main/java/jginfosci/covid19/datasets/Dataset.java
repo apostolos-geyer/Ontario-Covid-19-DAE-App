@@ -3,7 +3,7 @@
  * To change this template csvPath, choose Tools | Templates
  * and open the template in the editor.
  */
-package jginfosci.covid19.dae.datasets;
+package jginfosci.covid19.datasets;
 import java.beans.*;
 import java.io.*;
 import java.net.*;
@@ -22,6 +22,7 @@ import tech.tablesaw.plotly.components.Layout;
 import tech.tablesaw.plotly.traces.*;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
+import jginfosci.covid19.dae.DateAndTime;
 
 /**
  * A class built on top of {@link Table}, containing various methods to 
@@ -58,7 +59,7 @@ public class Dataset{
         this.csvPath=csv;
         this.sawPath=saw;
         this.url=url;
-        this.lastUpdated = DateAndTime.now();
+        this.lastUpdated = DateAndTime.lastUpTime();
         
     }
     
@@ -157,7 +158,7 @@ public class Dataset{
     
     /**
      * Get this {@link Dataset#lastUpdated}.
-     * @param s  The new value for the {@code lastUpdated}, usually now.
+     * @param s  The new value for the {@code lastUpdated}, usually lastUpTime.
      */
     public void setLastUpdated(String s){
         lastUpdated = s;
@@ -333,30 +334,7 @@ public class Dataset{
 
 
 
-    /**
-     * Simple utility class for getting current date and time.
-     * @author paulgeyer
-     */
-    class DateAndTime{
-        
-    /**
-     * Format of the {@link LocalDateTime}. 
-     * <pre>Format yyyy-MM-dd HH:mm</pre>
-     */    
-    private static final DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     
-    /**
-     * 
-     * @return The current time.
-     * @see LocalDateTime#now() 
-     */
-    public static String now(){
-        LocalDateTime dt = LocalDateTime.now();
-        String now = dtf.format(dt);
-        return now;
-    }
-    }
-
 
 
 

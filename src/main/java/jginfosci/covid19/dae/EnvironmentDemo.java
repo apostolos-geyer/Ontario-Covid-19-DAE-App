@@ -4,16 +4,17 @@
  * and open the template in the editor.
  */
 package jginfosci.covid19.dae;
+import jginfosci.covid19.datasets.IO;
+import jginfosci.covid19.datasets.Dataset;
 import java.io.*;
 import java.util.*;
-import jginfosci.covid19.dae.datasets.*;
 import tech.tablesaw.api.*;
 import tech.tablesaw.columns.numbers.NumberColumnFormatter;
 import tech.tablesaw.io.saw.*;
 import tech.tablesaw.plotly.Plot;
 import tech.tablesaw.plotly.api.VerticalBarPlot;
 import tech.tablesaw.plotly.components.Layout;
-import static jginfosci.covid19.dae.datasets.IO.DATASET_FOLDER;
+import static jginfosci.covid19.datasets.IO.DATASET_FOLDER;
 import tech.tablesaw.plotly.api.*;
 
 

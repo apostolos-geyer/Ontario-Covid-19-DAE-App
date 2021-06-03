@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package jginfosci.covid19.dae.datasets;
+package jginfosci.covid19.datasets;
 import java.beans.*;
 import java.io.*;
 import java.net.URL;
@@ -13,6 +13,7 @@ import java.nio.file.*;
 import java.util.*;
 import java.util.logging.*;
 import java.util.stream.Stream;
+import jginfosci.covid19.dae.DateAndTime;
 import tech.tablesaw.api.Table;
 import tech.tablesaw.io.csv.CsvReadOptions;
 import tech.tablesaw.io.saw.*;
@@ -66,7 +67,7 @@ public abstract class IO {
     public static void save(Dataset d){
         tableToSaw(d);
         tableToCsv(d);
-        d.setLastUpdated(DateAndTime.now());
+        d.setLastUpdated(DateAndTime.lastUpTime());
         try{
         xmlEncode(d);
         }catch(FileNotFoundException e){
