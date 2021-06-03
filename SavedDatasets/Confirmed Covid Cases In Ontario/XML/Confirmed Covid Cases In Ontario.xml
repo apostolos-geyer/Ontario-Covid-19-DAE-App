@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="16.0.1" class="java.beans.XMLDecoder">
+ <object class="jginfosci.covid19.dae.datasets.Dataset">
+  <void property="csvPath">
+   <string>SavedDatasets/Confirmed Covid Cases In Ontario/CSV/Confirmed Covid Cases In Ontario.csv</string>
+  </void>
+  <void property="lastUpdated">
+   <string>2021-05-31 14:04</string>
+  </void>
+  <void property="name">
+   <string>Confirmed Covid Cases In Ontario</string>
+  </void>
+  <void property="sawPath">
+   <string>SavedDatasets/Confirmed Covid Cases In Ontario/SAW/ConfirmedCovidCasesInOntario.saw</string>
+  </void>
+  <void property="url">
+   <string>https://data.ontario.ca/dataset/f4112442-bdc8-45d2-be3c-12efae72fb27/resource/455fd63b-603d-4608-8216-7d8647f43350/download/conposcovidloc.csv</string>
+  </void>
+ </object>
+</java>
