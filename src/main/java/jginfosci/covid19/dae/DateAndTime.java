@@ -20,13 +20,14 @@ public class DateAndTime {
      */
     private static final DateTimeFormatter lastUpdatedFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final DateTimeFormatter displayFormat = DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy");
+    private static final DateTimeFormatter winTitleFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
      *
      * @return The current time.
      * @see LocalDateTime#now()
      */
-    public static String lastUpTime() {
+    public static String lastUpDateTime() {
         LocalDateTime dt = LocalDateTime.now();
         String now = lastUpdatedFormat.format(dt);
         return now;
@@ -35,6 +36,12 @@ public class DateAndTime {
     public static String dispDate() {
         LocalDateTime dt = LocalDateTime.now();
         String now = displayFormat.format(dt);
+        return now;
+    }
+    
+    public static String winTitleDate() {
+        LocalDateTime dt = LocalDateTime.now();
+        String now = winTitleFormat.format(dt);
         return now;
     }
     
