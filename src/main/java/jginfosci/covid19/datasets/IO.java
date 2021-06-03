@@ -67,7 +67,7 @@ public abstract class IO {
     public static void save(Dataset d){
         tableToSaw(d);
         tableToCsv(d);
-        d.setLastUpdated(DateAndTime.lastUpTime());
+        d.setLastUpdated(DateAndTime.lastUpDateTime());
         try{
         xmlEncode(d);
         }catch(FileNotFoundException e){
