@@ -32,7 +32,7 @@ public class DateAndTime {
         return now;
     }
 
-    public static String dispTime() {
+    public static String dispDate() {
         LocalDateTime dt = LocalDateTime.now();
         String now = displayFormat.format(dt);
         return now;
