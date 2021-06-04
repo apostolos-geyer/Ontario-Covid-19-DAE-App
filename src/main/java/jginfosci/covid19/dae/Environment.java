@@ -102,6 +102,7 @@ public class Environment {
          * @param args  The command line arguments.
          */
         public static void main(String [] args){
+            WelcomePage w = new WelcomePage();
             
             /*mapAllCurrentDatasets();
             DATASET_LIST.forEach((String k) -> {
