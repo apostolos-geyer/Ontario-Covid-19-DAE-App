@@ -54,10 +54,12 @@ public final class WelcomePage extends JFrame implements ActionListener{
                 Box welcMessages = Box.createVerticalBox();
                 welcMessages.add(welcomeMessage);
                 welcMessages.add(DATE);
-        
-            titlePanel.add(welcMessages);
+            JPanel welcMessagePanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 50));
+            welcMessagePanel.setBackground(Color.WHITE);
+            welcMessagePanel.add(welcMessages);
+            titlePanel.add(welcMessagePanel);
             
-            loadPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 250, 250));
+            loadPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 250));
             loadPanel.setPreferredSize(new Dimension(1000, 500));
             loadPanel.setBackground(JG_RED);
 
@@ -98,8 +100,7 @@ public final class WelcomePage extends JFrame implements ActionListener{
             public void run() {
                 WelcomePage window = new WelcomePage();
             }
+            
     });
-    
-    
 }
 }
