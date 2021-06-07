@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <java version="16.0.1" class="java.beans.XMLDecoder">
- <object class="jginfosci.covid19.dae.datasets.Dataset">
+ <object class="jginfosci.covid19.datasets.Dataset">
   <void property="csvPath">
    <string>SavedDatasets/PHU Pop by Age and Sex/CSV/PHU Pop by Age and Sex.csv</string>
   </void>

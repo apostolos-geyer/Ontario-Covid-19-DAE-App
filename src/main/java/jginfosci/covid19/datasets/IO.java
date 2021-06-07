@@ -74,6 +74,31 @@ public abstract class IO {
             e.printStackTrace();
                 }
     }
+    
+    /**
+     * <pre>Saves a {@link Dataset}.</pre> To be used in cases where changes
+     * have been made to a Dataset, and during the development of the
+     * application to simplify adding new default Datasets.
+     * <p>
+     * The {@link Dataset#table} will be saved only as a .saw, most
+     * Dataset attributes will also be saved as an .xml serialized
+     * {@code Object}. {@link Dataset#lastUpdated} will also be updated to the
+     * current date and time.
+     *
+     * @param d the Dataset to be saved.
+     * @see tableToSaw(Dataset)
+     * @see tableToCsv(Dataset)
+     * @see Dataset#setLastUpdated
+     * @see xmlEncode(Dataset)
+     */
+    public static void saveUpdate(Dataset d) {
+        tableToSaw(d);
+        try {
+            xmlEncode(d);
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * Writes a .csv file from {@link Dataset} d.
@@ -148,6 +173,7 @@ public abstract class IO {
         Dataset d = xmlDecode(name);
         if(update && d.getUrl()!=null){
             update(d);
+            
         }
         else if(update){ //URL will be null here by default, so it'name not necessary to include it in the condition.
             System.out.println("""
@@ -215,6 +241,9 @@ public abstract class IO {
         
         try {
             downloadCsv(new URL(d.getUrl()), Paths.get(DATASET_FOLDER, d.getName(), CSV_FOLDER, d.getName()+".csv"));
+            d.setLastUpdated(DateAndTime.lastUpDateTime());
+            d.setTable(csvToTable(Paths.get(DATASET_FOLDER, d.getName(), CSV_FOLDER, d.getName()+".csv"), d.getName()));
+            saveUpdate(d);
         } catch (IOException ex) {
             Logger.getLogger(IO.class.getName()).log(Level.SEVERE, null, ex);
         }
