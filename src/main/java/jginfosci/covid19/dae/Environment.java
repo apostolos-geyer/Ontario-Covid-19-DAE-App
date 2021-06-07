@@ -159,7 +159,6 @@ public class Environment {
                     case("basic"):
                         loadList();
                         System.out.println(DATASET_LIST);
-                        mapAllDatasetsUpdate();
                     
                     
                     
