@@ -104,6 +104,7 @@ public class Environment {
         public static void main(String [] args){
             WelcomePage w = new WelcomePage();
             
+            
             /*mapAllCurrentDatasets();
             DATASET_LIST.forEach((String k) -> {
                 Table t = DATASETS.get(k).getTable();
