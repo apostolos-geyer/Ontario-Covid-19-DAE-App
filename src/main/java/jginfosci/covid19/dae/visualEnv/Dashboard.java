@@ -13,11 +13,13 @@ import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.ImageIcon;
+import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 import jginfosci.covid19.dae.DateAndTime;
+import static jginfosci.covid19.dae.visualEnv.WelcomePage.JG_RED;
 
 /**
  *
@@ -25,11 +27,24 @@ import jginfosci.covid19.dae.DateAndTime;
  */
 public class Dashboard implements ActionListener {
    private final JFrame dash = new JFrame();
-   private JPanel parentPanel,datePanel;
+   private JPanel parentPanel,datePanel,PHUpanel;
    private Container content;
+   private final JButton PHU = new JButton();
     
     
     void DashBoard(JPanel p){
+        
+        PHUpanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 250));
+        PHUpanel.setPreferredSize(new Dimension(1000, 500));
+        PHUpanel.setBackground(JG_RED);
+        
+        PHU.setText("Compare By Public Health Unit");
+        PHU.setFont(new Font ("Cambria",0,25));
+        PHU.setBackground(Color.WHITE);
+        PHU.setForeground(JG_RED);
+       
+        
+        PHUpanel.add(PHU);
         
         dash.setSize(new Dimension(1000,700));
         dash.setMinimumSize(new Dimension(1000,700));
@@ -39,6 +54,8 @@ public class Dashboard implements ActionListener {
         
         parentPanel = new JPanel(new BorderLayout());
         parentPanel.setBackground(WelcomePage.JG_RED);
+        parentPanel.add(PHUpanel, BorderLayout.WEST);
+        
         c.add(parentPanel, BorderLayout.CENTER);
         
         parentPanel.add(p, BorderLayout.NORTH);
