@@ -74,31 +74,7 @@ public abstract class IO {
             e.printStackTrace();
                 }
     }
-    
-    /**
-     * <pre>Saves a {@link Dataset}.</pre> To be used in cases where changes
-     * have been made to a Dataset, and during the development of the
-     * application to simplify adding new default Datasets.
-     * <p>
-     * The {@link Dataset#table} will be saved only as a .saw, most
-     * Dataset attributes will also be saved as an .xml serialized
-     * {@code Object}. {@link Dataset#lastUpdated} will also be updated to the
-     * current date and time.
-     *
-     * @param d the Dataset to be saved.
-     * @see tableToSaw(Dataset)
-     * @see tableToCsv(Dataset)
-     * @see Dataset#setLastUpdated
-     * @see xmlEncode(Dataset)
-     */
-    public static void saveUpdate(Dataset d) {
-        tableToSaw(d);
-        try {
-            xmlEncode(d);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
+
 
     /**
      * Writes a .csv file from {@link Dataset} d.
@@ -243,7 +219,7 @@ public abstract class IO {
             downloadCsv(new URL(d.getUrl()), Paths.get(DATASET_FOLDER, d.getName(), CSV_FOLDER, d.getName()+".csv"));
             d.setLastUpdated(DateAndTime.lastUpDateTime());
             d.setTable(csvToTable(Paths.get(DATASET_FOLDER, d.getName(), CSV_FOLDER, d.getName()+".csv"), d.getName()));
-            saveUpdate(d);
+            save(d);
         } catch (IOException ex) {
             Logger.getLogger(IO.class.getName()).log(Level.SEVERE, null, ex);
         }

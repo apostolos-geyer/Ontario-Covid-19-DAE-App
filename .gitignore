@@ -10,3 +10,5 @@ nb-configuration.xml
 
 # Ignore large CSV files for Datasets that have online locations
 SavedDatasets/**/CSV/**
+
+!SavedDatasets/PHU Pop by Age and Sex/CSV/PHU Pop by Age and Sex.csv

@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <java version="16.0.1" class="java.beans.XMLDecoder">
  <object class="jginfosci.covid19.datasets.Dataset">
+  <void property="csvPath">
+   <string>SavedDatasets/Status of Covid Cases by PHU/CSV/Status of Covid Cases by PHU.csv</string>
+  </void>
   <void property="lastUpdated">
-   <string>2021-06-07 11:25</string>
+   <string>2021-06-07 13:40</string>
   </void>
   <void property="name">
    <string>Status of Covid Cases by PHU</string>
