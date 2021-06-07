@@ -1,4 +1,3 @@
-
 package jginfosci.covid19.dae.visualEnv;
 import java.awt.*;
 import java.awt.event.*;
@@ -11,8 +10,8 @@ import jginfosci.covid19.dae.DateAndTime;
  * @author nathanjohnson
  */
 public final class WelcomePage extends JFrame implements ActionListener{
-    private final String JG_LOGO_PATH = "visuals/logo.png";
-    private final Color JG_RED = new Color(0xA21515);
+    public static final String JG_LOGO_PATH = "visuals/logo.png";
+    public static final Color JG_RED = new Color(0xA21515);
     private JLabel DATE = new JLabel(DateAndTime.dispDate());
     private JPanel parentPanel, titlePanel,loadPanel,datePanel;
     private JLabel logo,welcomeMessage;
