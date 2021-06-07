@@ -18,7 +18,6 @@ public final class WelcomePage implements ActionListener{
     private JLabel DATE = new JLabel(DateAndTime.dispDate());
     private JPanel parentPanel,loadPanel,datePanel;
     public JPanel titlePanel;
-    public static final JPanel header;
     private JLabel logo,welcomeMessage;
     private JButton loadButton;
     private Container content;
