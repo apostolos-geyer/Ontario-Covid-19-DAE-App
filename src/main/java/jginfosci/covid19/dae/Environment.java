@@ -185,10 +185,14 @@ public class Environment {
             }
             
             
-            
-            
-            
-            
+            /*mapAllCurrentDatasets();
+            DATASET_LIST.forEach((String k) -> {
+                Table t = DATASETS.get(k).getTable();
+                System.out.println(k+": \n"
+                        +t.shape()+"\n"
+                        +t.columnNames()+"\n"
+                        +Arrays.toString(t.columnTypes())+"\n");
+            });*/
             
            
             
