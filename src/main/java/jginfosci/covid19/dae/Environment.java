@@ -84,25 +84,105 @@ public class Environment {
      * Used to load all currently stored versions of {@link Dataset}'s at once.
      *<pre>
      *DATASET_LIST
-     *  .forEach(s -> DATASETS.put(s, IO.load(s, Boolean,FALSE)))
+     *  .forEach(s -> DATASETS.put(s, IO.load(s, false)))
      *</pre>
      * @since June 1, 2021
      */
     private static void mapAllCurrentDatasets(){
-        loadList();
         DATASET_LIST
-                .forEach(s -> DATASETS.put(s, IO.load(s, Boolean.FALSE)));
+                .forEach(s -> DATASETS.put(s, IO.load(s, false)));
                         
+    }
+    
+    /**
+     * Used to load updated versions of Datasets with URLs, if the Dataset does not
+     * have a URL, the local version will be loaded..
+     * <pre>
+     *DATASET_LIST
+     *  .forEach(s -> DATASETS.put(s, IO.load(s, true)))
+     * </pre>
+     *
+     * @since June 1, 2021
+     */
+    private static void mapAllDatasetsUpdate() {
+        DATASET_LIST.stream()
+                .forEach(s -> DATASETS.put(s, IO.load(s, true)));
+
     }
     
 
 
         /**
          * Main method
-         * @param args  The command line arguments.
+         * @param args  The command line arguments.<br>
+         * 
+         *              When running from command line, the application can be 
+         *              launched with the following arguments, which will configure
+         *              how the application runs as follows:<p>
+         * 
+         *              <strong>No argument:</strong> <br>
+         *              If no argument is provided, the program will run in 
+         *              "basic" mode <p>
+         *              <strong>basic:</strong><br>
+         *              In basic mode, the program will sequentially load each 
+         *              {@link Dataset}, and the user will be able to decide 
+         *              which Datasets will use the data stored on the computer, 
+         *              and which will update.<p>
+         *              <strong>updated:</strong><br>
+         *              <b><i>STARTUP IN UPDATED MODE CAN BE SLOW</i></b><br>
+         *              In updated mode, the program will first update each Dataset
+         *              to its most recent version, and then launch straight to the 
+         *              Dashboard.<p> 
+         *              <strong>local:</strong><br>
+         *              In local mode, the program will build each Dataset from 
+         *              the versions currently stored in the project file, 
+         *              and then launch straight to the Dashboard, this is the 
+         *              fastest means of using the program, but will not use the
+         *              most recent metrics.<br> 
+         *              
          */
-        public static void main(String [] args){
-            WelcomePage w = new WelcomePage();
+        public static void main(String... args){
+            String argument;
+            for(int i=0; i<=args.length; i++){
+                if(i==0){
+                    argument = (args.length==0)? "basic" : args[i]; 
+                }
+                else{
+                    argument = args[i];
+                }
+                switch(argument){
+                    default:
+                        System.out.println("Unrecognized Argument: "+argument+"\n"
+                                + "Running in \"basic\" mode.");
+                        break; 
+                        
+                    case("basic"):
+                        loadList();
+                        System.out.println(DATASET_LIST);
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                }
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+                
+            }
             
             
             /*mapAllCurrentDatasets();

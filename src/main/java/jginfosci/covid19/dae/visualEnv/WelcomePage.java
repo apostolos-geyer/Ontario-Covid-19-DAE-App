@@ -1,4 +1,3 @@
-
 package jginfosci.covid19.dae.visualEnv;
 import java.awt.*;
 import java.awt.event.*;

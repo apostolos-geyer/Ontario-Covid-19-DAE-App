@@ -1,4 +1,3 @@
-
 package jginfosci.covid19.dae.visualEnv;
 
 import java.awt.BorderLayout;
@@ -33,6 +32,7 @@ public class Dashboard implements ActionListener {
     
     
     void DashBoard(JPanel p){
+        
         
         PHUpanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 250));
         PHUpanel.setPreferredSize(new Dimension(1000, 500));

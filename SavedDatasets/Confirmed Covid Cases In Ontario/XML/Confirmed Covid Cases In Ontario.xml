@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <java version="16.0.1" class="java.beans.XMLDecoder">
- <object class="jginfosci.covid19.dae.datasets.Dataset">
+ <object class="jginfosci.covid19.datasets.Dataset">
   <void property="csvPath">
    <string>SavedDatasets/Confirmed Covid Cases In Ontario/CSV/Confirmed Covid Cases In Ontario.csv</string>
   </void>
   <void property="lastUpdated">
-   <string>2021-05-31 14:04</string>
+   <string>2021-06-07 11:25</string>
   </void>
   <void property="name">
    <string>Confirmed Covid Cases In Ontario</string>
