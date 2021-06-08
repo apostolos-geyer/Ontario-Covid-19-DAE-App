@@ -1,3 +1,4 @@
+!.gitkeep
 **/nbproject/private/
 **/nbproject/Makefile-*.mk
 **/nbproject/Package-*.bash
@@ -11,4 +12,5 @@ nb-configuration.xml
 # Ignore large CSV files for Datasets that have online locations
 SavedDatasets/**/CSV/**
 
+#This one does not have an online location 
 !SavedDatasets/PHU Pop by Age and Sex/CSV/PHU Pop by Age and Sex.csv
