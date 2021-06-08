@@ -93,6 +93,8 @@ public final class WelcomePage implements ActionListener{
     welcome.setVisible(true);
     }
 
+   
+    
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource()==loadButton){

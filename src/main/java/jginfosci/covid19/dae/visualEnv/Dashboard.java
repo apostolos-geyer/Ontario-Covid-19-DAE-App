@@ -114,6 +114,7 @@ public class Dashboard implements ActionListener {
         totalDeaths.add(deaths, BorderLayout.NORTH);
         
         //ComboBox; Drop down menu
+
        List<String> PHU_List = new ArrayList<>(){{
             add("Ontario");
             DATASETS.get("Confirmed Covid Cases In Ontario")
@@ -123,15 +124,9 @@ public class Dashboard implements ActionListener {
                     .asList()
                     .forEach(x->{
                     add(x.toString());
-                    });
         }};
-
-
-
-
-
         phuChoice = new JComboBox(PHU_List.toArray(new String[0]));
-    
+
         phuChoice.setEditable(true);
         phuChoice.setBounds(10,205,300,28);
         phuChoice.addActionListener(this);
@@ -151,14 +146,8 @@ public class Dashboard implements ActionListener {
         
         //menu bar
         menuBar = new JMenuBar();
-        
-        
-        
-        
-        
-        
+
         dash.setSize(new Dimension(1380,800));
-        //dash.setMinimumSize(new Dimension(1380,800));
         dash.setJMenuBar(menuBar);
         
         
@@ -181,23 +170,12 @@ public class Dashboard implements ActionListener {
         PHUpanel.add(downloadButton);
         
         
-        //Parent Panel
-        
-        
-        c.add(parentPanel, BorderLayout.CENTER);
-        
-        
+        //Parent Panel 
+        c.add(parentPanel, BorderLayout.CENTER);    
         parentPanel.add(PHUpanel, BorderLayout.SOUTH);
         
         parentPanel.add(header, BorderLayout.NORTH);
         dash.pack();
-       
-
-        
-       
-
-        
-        
     }
     
     public Dashboard(JPanel p){
