@@ -146,7 +146,7 @@ public class Environment {
             String argument;
             for(int i=0; i<=args.length; i++){
                 if(i==0){
-                    argument = (args.length==0)? "basic" : args[i]; 
+                    argument = (args.length==0)? "setup" : args[i]; 
                 }
                 else{
                     argument = args[i];
