@@ -9,6 +9,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.BorderFactory;
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -100,14 +102,23 @@ public class Dashboard implements ActionListener {
         totalDeaths.add(deaths, BorderLayout.NORTH);
         
         //ComboBox; Drop down menu
-       String[] phuList = DATASETS.get("Confirmed Covid Cases In Ontario")
+        List<String> PHU_List = new ArrayList<>(){{
+            add("Ontario");
+            DATASETS.get("Confirmed Covid Cases In Ontario")
                     .getTable()
                     .column("Reporting_PHU")
                     .unique()
                     .asList()
-                    .toArray(new String[0]);
+                    .forEach(x->{
+                    add(x.toString());
+                    });
+        }};
+        
+        
+        
+                    
        
-        phuChoice = new JComboBox(phuList);
+        phuChoice = new JComboBox(PHU_List.toArray(new String[0]));
         phuChoice.setEditable(true);
         phuChoice.setBounds(500,234,300,28);
         phuChoice.addActionListener(this);
@@ -154,7 +165,7 @@ public class Dashboard implements ActionListener {
     
     public Dashboard(JPanel p){
     
-    dash.setTitle("COVID DASHBOARD SESSION : "+DateAndTime.winTitleDate());
+    dash.setTitle("COVID DASHBOARD SESSION : "+DateAndTime.dataDate());
     dash.setDefaultCloseOperation(EXIT_ON_CLOSE);
     DashBoard(p);
     dash.pack();

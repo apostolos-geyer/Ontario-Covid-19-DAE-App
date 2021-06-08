@@ -85,7 +85,9 @@ public final class WelcomePage implements ActionListener{
     }
     
     public WelcomePage(){
-    welcome.setTitle("COVID DASHBOARD SESSION : "+DateAndTime.winTitleDate());
+        
+        
+    welcome.setTitle("COVID DASHBOARD SESSION : "+DateAndTime.dataDate());
     welcome.setDefaultCloseOperation(EXIT_ON_CLOSE);
     initComponents();
     welcome.pack();
@@ -93,6 +95,8 @@ public final class WelcomePage implements ActionListener{
     welcome.setVisible(true);
     }
 
+   
+    
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource()==loadButton){
