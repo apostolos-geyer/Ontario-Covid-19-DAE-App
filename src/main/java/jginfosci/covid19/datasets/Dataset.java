@@ -59,7 +59,7 @@ public class Dataset{
         this.csvPath=csv;
         this.sawPath=saw;
         this.url=url;
-        this.lastUpdated = DateAndTime.lastUpDateTime();
+        this.lastUpdated = DateAndTime.lastUpdateTime();
         
     }
     
@@ -158,7 +158,7 @@ public class Dataset{
     
     /**
      * Get this {@link Dataset#lastUpdated}.
-     * @param s  The new value for the {@code lastUpdated}, usually lastUpDateTime.
+     * @param s  The new value for the {@code lastUpdated}, usually lastUpdateTime.
      */
     public void setLastUpdated(String s){
         lastUpdated = s;

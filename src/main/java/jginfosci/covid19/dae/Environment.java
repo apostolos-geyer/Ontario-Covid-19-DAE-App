@@ -10,6 +10,9 @@ import jginfosci.covid19.datasets.Dataset;
 import java.io.*;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.SwingUtilities;
 import tech.tablesaw.api.*;
 import tech.tablesaw.columns.numbers.NumberColumnFormatter;
 import tech.tablesaw.io.saw.*;
@@ -53,7 +56,6 @@ public class Environment {
      * as with any HashMap mapping to an object with methods. 
      */
     public static final HashMap<String, Dataset> DATASETS = new HashMap<String, Dataset>();
-    
     
     
     /**
@@ -105,9 +107,14 @@ public class Environment {
      * @since June 1, 2021
      */
     public static void mapAllDatasetsUpdate() {
-        DATASET_LIST.stream()
-                .forEach(s -> DATASETS.put(s, IO.load(s, true)));
-
+                new Thread(new Runnable() {
+                @Override
+                public void run(){
+                DATASET_LIST.stream()
+                .forEach(s -> DATASETS.put(s, IO.load(s, true))); 
+                System.out.println(DATASETS.get("Confirmed Covid Cases In Ontario").getTable().rowCount());
+                }
+                }).start();
     }
     
 
@@ -159,65 +166,26 @@ public class Environment {
                         
                     case("basic"):
                         loadList();
-                        mapAllCurrentDatasets();
-                        WelcomePage window = new WelcomePage();
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                new WelcomePage();
+                            }
+                        });
+                        
                         return;
                         
-                    case("download"):
+                    case("update"):
                         loadList();
                         mapAllDatasetsUpdate();
+                        
                         return;
                         
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
-                    
+                        case("setup"):
+                        loadList();
+                        mapAllDatasetsUpdate();
+
                 }
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
-                
             }
-            
-            
-            /*mapAllCurrentDatasets();
-            DATASET_LIST.forEach((String k) -> {
-                Table t = DATASETS.get(k).getTable();
-                System.out.println(k+": \n"
-                        +t.shape()+"\n"
-                        +t.columnNames()+"\n"
-                        +Arrays.toString(t.columnTypes())+"\n");
-            });*/
-            
-           
-            
-            
-    
-            
-            
-            
-
         }
-
-        
-
 }
-        
-
-
-
-
