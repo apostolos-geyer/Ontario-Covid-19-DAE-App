@@ -161,6 +161,12 @@ public class Environment {
                         loadList();
                         mapAllCurrentDatasets();
                         WelcomePage window = new WelcomePage();
+                        return;
+                        
+                    case("setup"):
+                        loadList();
+                        mapAllDatasetsUpdate();
+                        
                     
                     
                     
