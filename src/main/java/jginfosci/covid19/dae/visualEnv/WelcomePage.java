@@ -19,7 +19,7 @@ public final class WelcomePage implements ActionListener{
     private JPanel parentPanel,loadPanel,datePanel;
     public JPanel titlePanel;
     private JLabel logo,welcomeMessage;
-    private JButton loadButtonLocal, loadButtonUpdate;
+    private JButton loadButton,updateButton;
     private Container content;
     private static int welcomeLength;
     
@@ -66,13 +66,20 @@ public final class WelcomePage implements ActionListener{
         loadPanel.setPreferredSize(new Dimension(1000, 500));
         loadPanel.setBackground(JG_RED);
 
-        loadButtonLocal = new JButton("LOAD");
-        loadButtonLocal.setFont(new Font("Cambria", 0, 25));
-        loadButtonLocal.setBackground(Color.WHITE);
-        loadButtonLocal.setForeground(JG_RED);
-        loadButtonLocal.addActionListener(this);
+        loadButton = new JButton("LOAD");
+        loadButton.setFont(new Font("Cambria", 0, 25));
+        loadButton.setBackground(Color.WHITE);
+        loadButton.setForeground(JG_RED);
+        loadButton.addActionListener(this);
+        
+        updateButton = new JButton("UPDATE");
+        updateButton.setFont(new Font("Cambria", 0, 25));
+        updateButton.setBackground(Color.WHITE);
+        updateButton.setForeground(JG_RED);
+        updateButton.addActionListener(this);
 
-        loadPanel.add(loadButtonLocal);
+        loadPanel.add(loadButton);
+        loadPanel.add(updateButton);
 
             
         parentPanel.add(titlePanel, BorderLayout.NORTH);
@@ -92,12 +99,19 @@ public final class WelcomePage implements ActionListener{
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource()==loadButtonLocal){
+        if(e.getSource()==loadButton){
+            Environment.mapAllCurrentDatasets();
             welcome.dispose();
-           
             Dashboard d = new Dashboard(titlePanel);
+
           
             
+        }
+        else if(e.getSource()==updateButton){
+            Environment.mapAllDatasetsUpdate();
+            welcome.dispose();
+            Dashboard d = new Dashboard(titlePanel);
+           
         }
        
     }
