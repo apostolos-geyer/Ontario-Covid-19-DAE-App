@@ -63,7 +63,7 @@ public class Environment {
      * @see    IO#getSavedDatasets() 
      * @since  June 1, 2021
      */
-    private static void loadList(){
+    public static void loadList(){
         DATASET_LIST = IO.getSavedDatasets();
     }
     
@@ -74,7 +74,7 @@ public class Environment {
      * @see   IO#load(java.lang.String, java.lang.Boolean);
      * @since June 1, 2021
      */
-    private static void mapDataset(String name, Boolean update){
+    public static void mapDataset(String name, Boolean update){
         DATASETS.put(name, IO.load(name, update));
     }
     
@@ -88,7 +88,7 @@ public class Environment {
      *</pre>
      * @since June 1, 2021
      */
-    private static void mapAllCurrentDatasets(){
+    public static void mapAllCurrentDatasets(){
         DATASET_LIST
                 .forEach(s -> DATASETS.put(s, IO.load(s, false)));
                         
@@ -104,7 +104,7 @@ public class Environment {
      *
      * @since June 1, 2021
      */
-    private static void mapAllDatasetsUpdate() {
+    public static void mapAllDatasetsUpdate() {
         DATASET_LIST.stream()
                 .forEach(s -> DATASETS.put(s, IO.load(s, true)));
 
@@ -146,7 +146,7 @@ public class Environment {
             String argument;
             for(int i=0; i<=args.length; i++){
                 if(i==0){
-                    argument = (args.length==0)? "setup" : args[i]; 
+                    argument = (args.length==0)? "basic" : args[i]; 
                 }
                 else{
                     argument = args[i];
@@ -163,9 +163,10 @@ public class Environment {
                         WelcomePage window = new WelcomePage();
                         return;
                         
-                    case("setup"):
+                    case("download"):
                         loadList();
                         mapAllDatasetsUpdate();
+                        return;
                         
                     
                     
