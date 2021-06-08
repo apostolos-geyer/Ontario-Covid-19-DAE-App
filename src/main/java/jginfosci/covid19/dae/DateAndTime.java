@@ -20,7 +20,7 @@ public class DateAndTime {
      */
     private static final DateTimeFormatter lastUpdatedFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
     private static final DateTimeFormatter displayFormat = DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy");
-    private static final DateTimeFormatter winTitleFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private static final DateTimeFormatter dataFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
      *
@@ -39,9 +39,9 @@ public class DateAndTime {
         return now;
     }
     
-    public static String winTitleDate() {
+    public static String dataDate() {
         LocalDateTime dt = LocalDateTime.now();
-        String now = winTitleFormat.format(dt);
+        String now = dataFormat.format(dt);
         return now;
     }
     
