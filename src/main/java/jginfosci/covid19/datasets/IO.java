@@ -67,7 +67,6 @@ public abstract class IO {
     public static void save(Dataset d){
         tableToSaw(d);
         tableToCsv(d);
-        d.setLastUpdated(DateAndTime.lastUpDateTime());
         try{
         xmlEncode(d);
         }catch(FileNotFoundException e){
@@ -155,9 +154,11 @@ public abstract class IO {
             System.out.println("""
                                Cannot update dataset as there is no url to update from
                                Building from current file.""");
+        d.makeTableSaw();
+        tableToCsv(d);
         }
         d.makeTableSaw();
-        d.makeTableCsv();
+        
         return d;
     }
     
