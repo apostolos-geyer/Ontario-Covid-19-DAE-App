@@ -302,7 +302,7 @@ public class Dataset{
      */
     public void makeTableCsv(){
         try{
-            this.table = IO.csvToTable(Paths.get(url), name);
+            this.table = IO.csvToTable(Paths.get(csvPath), name);
             }
             catch(IOException e){
                 System.out.println("An error occurred creating the table.\n");

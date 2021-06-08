@@ -157,7 +157,7 @@ public abstract class IO {
                                Building from current file.""");
         }
         d.makeTableSaw();
-        d.makeTableCsv();
+       
         return d;
     }
     
@@ -217,6 +217,10 @@ public abstract class IO {
         }
         
         try {
+            Path p = Paths.get(DATASET_FOLDER, d.getName(), CSV_FOLDER);
+            if(!(p.toFile().exists())){
+                p.toFile().mkdirs();
+            }
             downloadCsv(new URL(d.getUrl()), Paths.get(DATASET_FOLDER, d.getName(), CSV_FOLDER, d.getName()+".csv"));
             d.setLastUpdated(DateAndTime.lastUpDateTime());
             d.makeTableCsv();
@@ -234,10 +238,12 @@ public abstract class IO {
      * @throws IOException 
      */
     public static void downloadCsv(URL url, Path p) throws FileNotFoundException, IOException{
+        
         ReadableByteChannel rbc = Channels.newChannel(url.openStream());
         FileOutputStream fOutStream = (new FileOutputStream(p.toFile()));
         FileChannel fChannel = fOutStream.getChannel();
-        fChannel.transferFrom(rbc, 0, Long.MAX_VALUE);         
+        fChannel.transferFrom(rbc, 0, Long.MAX_VALUE);
+        
     }
     
     /**
