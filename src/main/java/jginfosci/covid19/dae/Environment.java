@@ -142,6 +142,7 @@ public class Environment {
          *              
          */
         public static void main(String... args){
+            
             String argument;
             for(int i=0; i<=args.length; i++){
                 if(i==0){
@@ -158,7 +159,8 @@ public class Environment {
                         
                     case("basic"):
                         loadList();
-                        mapAllDatasetsUpdate();
+                        mapAllCurrentDatasets();
+                        WelcomePage window = new WelcomePage();
                     
                     
                     
