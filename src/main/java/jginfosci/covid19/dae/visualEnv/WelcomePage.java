@@ -27,8 +27,8 @@ public final class WelcomePage implements ActionListener{
     void initComponents(){
         
         //Setting the minimum size of the JFrame
-        welcome.setSize(new Dimension(1000,700));
-        welcome.setMinimumSize(new Dimension(1000,700));
+        welcome.setSize(new Dimension(1380,800));
+        welcome.setMinimumSize(new Dimension(1380,800));
         
         //Setting the layout of content pane and adding a top level JPanel
         Container c = welcome.getContentPane();
@@ -85,8 +85,6 @@ public final class WelcomePage implements ActionListener{
     }
     
     public WelcomePage(){
-        
-        
     welcome.setTitle("COVID DASHBOARD SESSION : "+DateAndTime.dataDate());
     welcome.setDefaultCloseOperation(EXIT_ON_CLOSE);
     initComponents();
