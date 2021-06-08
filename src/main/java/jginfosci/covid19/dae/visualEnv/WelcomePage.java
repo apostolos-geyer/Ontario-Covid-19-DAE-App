@@ -99,18 +99,7 @@ public final class WelcomePage implements ActionListener{
             Environment.mapAllCurrentDatasets();
             welcome.dispose();
             Dashboard d = new Dashboard(titlePanel);
-
-          
-            
         }
-        
-       
     }
-    
-    
-    
-    
-            
-    
 }
 

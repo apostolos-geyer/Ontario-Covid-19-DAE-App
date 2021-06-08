@@ -223,7 +223,7 @@ public abstract class IO {
                 p.toFile().mkdirs();
             }
             downloadCsv(new URL(d.getUrl()), Paths.get(DATASET_FOLDER, d.getName(), CSV_FOLDER, d.getName()+".csv"));
-            d.setLastUpdated(DateAndTime.lastUpDateTime());
+            d.setLastUpdated(DateAndTime.lastUpdateTime());
             d.makeTableCsv();
             save(d);
         } catch (IOException ex) {
