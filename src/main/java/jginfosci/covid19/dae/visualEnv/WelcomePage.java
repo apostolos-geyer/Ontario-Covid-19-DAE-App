@@ -19,7 +19,7 @@ public final class WelcomePage implements ActionListener{
     private JPanel parentPanel,loadPanel,datePanel;
     public JPanel titlePanel;
     private JLabel logo,welcomeMessage;
-    private JButton loadButton,updateButton;
+    private JButton loadButton;
     private Container content;
     private static int welcomeLength;
     
@@ -72,14 +72,10 @@ public final class WelcomePage implements ActionListener{
         loadButton.setForeground(JG_RED);
         loadButton.addActionListener(this);
         
-        updateButton = new JButton("UPDATE");
-        updateButton.setFont(new Font("Cambria", 0, 25));
-        updateButton.setBackground(Color.WHITE);
-        updateButton.setForeground(JG_RED);
-        updateButton.addActionListener(this);
+        
 
         loadPanel.add(loadButton);
-        loadPanel.add(updateButton);
+        
 
             
         parentPanel.add(titlePanel, BorderLayout.NORTH);
@@ -103,18 +99,7 @@ public final class WelcomePage implements ActionListener{
             Environment.mapAllCurrentDatasets();
             welcome.dispose();
             Dashboard d = new Dashboard(titlePanel);
-
-          
-            
         }
-        else if(e.getSource()==updateButton){
-            Environment.mapAllDatasetsUpdate();
-            welcome.dispose();
-            Dashboard d = new Dashboard(titlePanel);
-           
-        }
-       
     }
-    
 }
 
