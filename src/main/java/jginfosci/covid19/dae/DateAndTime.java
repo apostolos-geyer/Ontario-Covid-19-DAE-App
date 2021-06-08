@@ -27,7 +27,7 @@ public class DateAndTime {
      * @return The current time.
      * @see LocalDateTime#now()
      */
-    public static String lastUpDateTime() {
+    public static String lastUpdateTime() {
         LocalDateTime dt = LocalDateTime.now();
         String now = lastUpdatedFormat.format(dt);
         return now;

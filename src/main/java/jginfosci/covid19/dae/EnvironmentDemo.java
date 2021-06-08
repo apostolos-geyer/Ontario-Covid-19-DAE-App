@@ -42,28 +42,69 @@ public class EnvironmentDemo{
      * The Strings mapping to each Dataset will be the same as the file name, 
      * the {@link Dataset#name}, and the return of {@link DATASETS}{@code .getKeySet()}.
      * <p>
-     * Dataset methods can be called on any given Dataset using {@link HashMap#get(java.lang.Object)}
+     * Dataset methods can be called on any given Dataset using {@link HashMap#get}
+     * as with any HashMap mapping to an object with methods. 
      */
     public static final HashMap<String, Dataset> DATASETS = new HashMap<String, Dataset>();
     
     
     
     /**
-     * Load the {@link DATASET_LIST} using {@link IO#getSavedDatasets()}
-     * @author Paul Geyer
-     * @since June 1, 2021
+     * Load the {@link DATASET_LIST}.
+     * <p>
+     * <code>DATASET_LIST = IO.getSavedDatasets()</code>
+     * @see    IO#getSavedDatasets() 
+     * @since  June 1, 2021
      */
-    private static void loadList(){
+    public static void loadList(){
+        
         DATASET_LIST = IO.getSavedDatasets();
     }
     
     /**
-     * Load all Datasets
-     * @deprecated was renamed to be more accurate and replaced with multiple
-     * method versions for loading Datasets.
-     * @see Environment#mapDataset(java.lang.String, java.lang.Boolean) 
-     * @see Environment#mapAllCurrentDatasets() 
+     * Maps a {@link Dataset} to a String in {@link DATASETS}.
+     * @param name      The name of the {@link Dataset} to be mapped.
+     * @param update    Whether to update the Dataset from its {@link Dataset#url}
+     * @see   IO#load(java.lang.String, java.lang.Boolean);
+     * @since June 1, 2021
      */
+    public static void mapDataset(String name, Boolean update){
+        DATASETS.put(name, IO.load(name, update));
+    }
+    
+    
+    
+    /**
+     * Used to load all currently stored versions of {@link Dataset}'s at once.
+     *<pre>
+     *DATASET_LIST
+     *  .forEach(s -> DATASETS.put(s, IO.load(s, false)))
+     *</pre>
+     * @since June 1, 2021
+     */
+    public static void mapAllCurrentDatasets(){
+        
+        DATASET_LIST
+                .forEach(s -> DATASETS.put(s, IO.load(s, false)));
+                        
+    }
+    
+    /**
+     * Used to load updated versions of Datasets with URLs, if the Dataset does not
+     * have a URL, the local version will be loaded..
+     * <pre>
+     *DATASET_LIST
+     *  .forEach(s -> DATASETS.put(s, IO.load(s, true)))
+     * </pre>
+     *
+     * @since June 1, 2021
+     */
+    public static void mapAllDatasetsUpdate() {
+        DATASET_LIST.stream()
+                .forEach(s -> DATASETS.put(s, IO.load(s, true)));
+
+    }
+    
     @Deprecated
     private static void loadDatasets(){
         DATASET_LIST.stream().forEach(s -> DATASETS.put(s, IO.load(s, Boolean.FALSE)));
@@ -79,9 +120,20 @@ public class EnvironmentDemo{
             loadList();
             loadDatasets();
             
+            
+          
+                   
+                    
+                    
+              
+            
+            
+            
+            
+            
             BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
             
-            DATASET_LIST.forEach(System.out::println);
+            //DATASET_LIST.forEach(System.out::println);
             
         /*Table xTab = DATASETS.get("Confirmed Covid Cases In Ontario").getTable().xTabCounts("Age_Group", "Outcome1");
         System.out.println(xTab.print());
@@ -98,6 +150,7 @@ public class EnvironmentDemo{
         Plot.show(VerticalBarPlot.create("Age Group x Mortaility%", xTab, "Age_Group", "Mortaility%"));
         */
 
+        /*
         String in, row, col;
         String [] inArr;
         Dataset d;
@@ -165,7 +218,7 @@ public class EnvironmentDemo{
         }
         }while(true);
         }while(true);
-            
+            */
             
     
             
