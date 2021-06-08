@@ -122,9 +122,8 @@ public class Dashboard implements ActionListener {
                     .column("Reporting_PHU")
                     .unique()
                     .asList()
-                    .forEach(x->{
-                    add(x.toString());
-        }};
+                    .forEach(x->add(x.toString()));
+       }};
         phuChoice = new JComboBox(PHU_List.toArray(new String[0]));
 
         phuChoice.setEditable(true);
