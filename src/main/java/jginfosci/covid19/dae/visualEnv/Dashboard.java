@@ -36,13 +36,9 @@ public class Dashboard implements ActionListener {
         
         PHUpanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 250));
         PHUpanel.setPreferredSize(new Dimension(1000, 500));
-        PHUpanel.setBackground(JG_RED);
+        PHUpanel.setBackground(Color.WHITE);
         
-        PHU.setText("Compare By Public Health Unit");
-        PHU.setFont(new Font ("Cambria",0,25));
-        PHU.setBackground(Color.WHITE);
-        PHU.setForeground(JG_RED);
-       
+     
         
         PHUpanel.add(PHU);
         
@@ -53,7 +49,7 @@ public class Dashboard implements ActionListener {
         c.setLayout(new BorderLayout());
         
         parentPanel = new JPanel(new BorderLayout());
-        parentPanel.setBackground(WelcomePage.JG_RED);
+        parentPanel.setBackground(Color.WHITE);
         parentPanel.add(PHUpanel, BorderLayout.WEST);
         
         c.add(parentPanel, BorderLayout.CENTER);
