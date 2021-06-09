@@ -21,7 +21,9 @@ public class Dashboard implements ActionListener {
    private JPanel 
            parentPanel = parent_panel(),
            displayPanel = display_panel(),
-           statsPanel;
+           statsPanel,snapshotPanel=new JPanel(),graphPanel=new JPanel(),updatePanel=new JPanel(),
+           casePanel = new JPanel(),totalCasesPanel = new JPanel();
+   
    private final JButton PHU = new JButton();
    private final JComboBox REGION_LIST = new JComboBox(getRegionList().toArray(new String[0]));
    private JMenuBar menuBar;
@@ -33,12 +35,18 @@ public class Dashboard implements ActionListener {
         dash.setContentPane(parentPanel);
         parentPanel.setLayout(new BorderLayout());
         
+        snapshotSetup();
+        /*casesSetup();
+        demographicsSetup();
+        regionsSetup();
+        vaccinationSetup();*/
+        
         displayPanel.setLayout(new BorderLayout());
         UIManager.put("TabbedPane.underlineColor", JG_RED);
         pages = new JTabbedPane(){{
             setFont(new Font("Cambria", Font.BOLD + Font.ITALIC, 25));
             setBackground(new Color(0xF5BCBC));
-            add(" TODAYS SNAPSHOT ", new JLabel("what"));
+            add(" TODAYS SNAPSHOT ", snapshotPanel );
             add(" CASES ", new JLabel("what"));
             add(" DEMOGRAPHICS ", new JLabel("what"));
             add(" REGIONS ", new JLabel("what"));
@@ -52,37 +60,185 @@ public class Dashboard implements ActionListener {
         parentPanel.add(header_panel(), BorderLayout.NORTH);
         parentPanel.add(displayPanel, BorderLayout.CENTER);
         dash.pack();
-        /*
-        statsPanel = new JPanel(new GridLayout(2,2,5,5));
-        statsPanel.setPreferredSize(new Dimension(500,600));
+        
+        
         
        
         
+        
+        
+        
+    }
+    
+    public void snapshotSetup(){
         //Statistical Labels
-        JLabel cases = new JLabel();
-        cases.setText("Change in cases");
-        cases.setFont(new Font("Cambria",Font.BOLD,23));
-        cases.setForeground(JG_RED);
-        cases.setHorizontalAlignment(JLabel.CENTER);
+        statsPanel = new JPanel();
+        BoxLayout bLayout = new BoxLayout(statsPanel, BoxLayout.Y_AXIS);
+        statsPanel.setPreferredSize(new Dimension(500, 500));
+        statsPanel.setLayout(bLayout);
+        
+        snapshotPanel.setLayout(new GridLayout(1,2));
+        
+        //BOX 1
+        JLabel caseInfo = new JLabel();
+        caseInfo.setText("Case Info:");
+        caseInfo.setFont(new Font("Cambria",Font.BOLD,23));
+        caseInfo.setForeground(JG_RED);
+        caseInfo.setHorizontalAlignment(JLabel.CENTER);
+        
+        JLabel lastUpdate = new JLabel();
+        lastUpdate.setText("LAST UPDATED FULL FORMAT");
+        lastUpdate.setFont(new Font("Cambria",Font.BOLD,23));
+        lastUpdate.setForeground(JG_RED);
+        lastUpdate.setHorizontalAlignment(JLabel.CENTER);
+        
+        updateButton.setFont(new Font("Cambria", 0, 25));
+        updateButton.setBackground(Color.WHITE);
+        updateButton.setForeground(JG_RED);
+        updateButton.addActionListener(this);
        
-        JLabel Rcases = new JLabel();
-        Rcases.setText("Recent cases");
-        Rcases.setFont(new Font("Cambria",Font.BOLD,23));
-        Rcases.setForeground(JG_RED);
-        Rcases.setHorizontalAlignment(JLabel.CENTER);
+        
+        
+        //BOX 2
+        casePanel.setLayout(new GridLayout(1,2));
+        casePanel.setBackground(new Color(0xFCFCFC));
+        casePanel.setPreferredSize(new Dimension(300, 180));
+        
+        JPanel newCases = new JPanel();
+        //BoxLayout b2 = new BoxLayout(newCases, BoxLayout.Y_AXIS);
+        newCases.setLayout(new GridLayout(3,1));
+        
+        JLabel ncText = new JLabel("New Cases");
+        ncText.setFont(new Font("Cambria", Font.BOLD, 30));
+        ncText.setForeground(JG_RED);
+        ncText.setHorizontalAlignment(JLabel.CENTER);
+        
+        JLabel ncUpdate = new JLabel("number reported on last updated date");
+        ncUpdate.setFont(new Font("Cambria", Font.BOLD, 23));
+        ncUpdate.setForeground(JG_RED);
+        ncUpdate.setHorizontalAlignment(JLabel.CENTER);
+        
+        JLabel ncChange = new JLabel("change since previous period");
+        ncChange.setFont(new Font("Cambria", Font.BOLD, 23));
+        ncChange.setForeground(JG_RED);
+        ncChange.setHorizontalAlignment(JLabel.CENTER);
+        
+        newCases.add(ncText);
+        newCases.add(ncUpdate);
+        newCases.add(ncChange);
+        
+        
+        JPanel recentCases = new JPanel();
+        //BoxLayout b3 = new BoxLayout(recentCases, BoxLayout.Y_AXIS);
+        recentCases.setLayout(new GridLayout(3,1));
+        
+        JLabel rcText = new JLabel("Recent Cases");
+        rcText.setFont(new Font("Cambria", Font.BOLD, 30));
+        rcText.setForeground(JG_RED);
+        rcText.setHorizontalAlignment(JLabel.CENTER);
+        
+        JLabel rcUpdate = new JLabel("number reported on last updated date");
+        rcUpdate.setFont(new Font("Cambria", Font.BOLD, 23));
+        rcUpdate.setForeground(JG_RED);
+        rcUpdate.setHorizontalAlignment(JLabel.CENTER);
+
+        JLabel rcChange = new JLabel("change since previous period");
+        rcChange.setFont(new Font("Cambria", Font.BOLD, 23));
+        rcChange.setForeground(JG_RED);
+        rcChange.setHorizontalAlignment(JLabel.CENTER);
+
+        recentCases.add(rcText);
+        recentCases.add(rcUpdate);
+        recentCases.add(rcChange);
+        
+        
+        casePanel.add(newCases);
+        casePanel.add(recentCases);
+        
+        //BOX 3
+        totalCasesPanel.setLayout(new GridLayout(1,2));
+        totalCasesPanel.setBackground(new Color(0xFCFCFC));
+        totalCasesPanel.setPreferredSize(new Dimension(300, 200));
+        
+        JPanel totalCases = new JPanel();
+        //BoxLayout b2 = new BoxLayout(newCases, BoxLayout.Y_AXIS);
+        totalCases.setLayout(new GridLayout(4,1));
+        
+        JLabel tcText = new JLabel("Total Cases");
+        tcText.setFont(new Font("Cambria", Font.BOLD, 30));
+        tcText.setForeground(JG_RED);
+        tcText.setHorizontalAlignment(JLabel.CENTER);
+        
+        JLabel current = new JLabel("currently active");
+        current.setFont(new Font("Cambria", Font.BOLD, 23));
+        current.setForeground(JG_RED);
+        current.setHorizontalAlignment(JLabel.CENTER);
+        
+        JLabel resolved = new JLabel("resolved");
+        resolved.setFont(new Font("Cambria", Font.BOLD, 23));
+        resolved.setForeground(JG_RED);
+        resolved.setHorizontalAlignment(JLabel.CENTER);
+        
+        JLabel deathCount = new JLabel("deaths");
+        deathCount.setFont(new Font("Cambria", Font.BOLD, 23));
+        deathCount.setForeground(JG_RED);
+        deathCount.setHorizontalAlignment(JLabel.CENTER);
+        
+        totalCases.add(tcText);
+        totalCases.add(current);
+        totalCases.add(resolved);
+        totalCases.add(deathCount);
+        
+        
+        JPanel numbers = new JPanel();
+        //BoxLayout b3 = new BoxLayout(recentCases, BoxLayout.Y_AXIS);
+        numbers.setLayout(new GridLayout(4,1));
+        
+        JLabel tcNumber = new JLabel(""+DATASETS.get("Confirmed Covid Cases In Ontario").getTable().rowCount());
+        tcNumber.setFont(new Font("Cambria", Font.BOLD, 30));
+        tcNumber.setForeground(JG_RED);
+        tcNumber.setHorizontalAlignment(JLabel.CENTER);
+        
+        JLabel caNumber = new JLabel("number  %total");
+        caNumber.setFont(new Font("Cambria", Font.BOLD, 23));
+        caNumber.setForeground(JG_RED);
+        caNumber.setHorizontalAlignment(JLabel.CENTER);
+
+        JLabel resolvedNumber = new JLabel("number  %total");
+        resolvedNumber.setFont(new Font("Cambria", Font.BOLD, 23));
+        resolvedNumber.setForeground(JG_RED);
+        resolvedNumber.setHorizontalAlignment(JLabel.CENTER);
+        
+        JLabel deathsNumber = new JLabel("number  %total");
+        deathsNumber.setFont(new Font("Cambria", Font.BOLD, 23));
+        deathsNumber.setForeground(JG_RED);
+        deathsNumber.setHorizontalAlignment(JLabel.CENTER);
+
+        numbers.add(tcNumber);
+        numbers.add(caNumber);
+        numbers.add(resolvedNumber);
+        numbers.add(deathsNumber);
+        
+        
+        totalCasesPanel.add(totalCases);
+        totalCasesPanel.add(numbers);
+        
+
         
         
         
-        JLabel Tcases = new JLabel();
-        Tcases.setText("Total cases");
-        Tcases.setFont(new Font("Cambria",Font.BOLD,23));
-        Tcases.setForeground(JG_RED);
-        Tcases.setHorizontalAlignment(JLabel.CENTER);
-        JLabel TcasesText = new JLabel(""+DATASETS.get("Confirmed Covid Cases In Ontario").getTable().rowCount());
-        TcasesText.setForeground(JG_RED);
-        TcasesText.setFont(new Font("Cambria",Font.BOLD,30));
-        TcasesText.setHorizontalAlignment(JLabel.CENTER);
         
+        
+        
+        
+        
+        
+        
+        
+        
+        
+       
+       
         JLabel deaths = new JLabel();
         deaths.setText("Total deaths");
         deaths.setFont(new Font("Cambria",Font.BOLD,23));
@@ -92,85 +248,55 @@ public class Dashboard implements ActionListener {
         
         
         //Statistical Panels
-        JPanel changeCases = new JPanel(new BorderLayout());
-        changeCases.setBackground(new Color(0xFCFCFC));
-        changeCases.setBounds(10,234,200,200);
-        changeCases.add(cases, BorderLayout.NORTH);
+        updatePanel.setLayout(new FlowLayout(FlowLayout.LEFT,10,10));
+        updatePanel.setBackground(new Color(0xFCFCFC));
+        updatePanel.setPreferredSize(new Dimension(300,25));
+        updatePanel.add(caseInfo);
+        updatePanel.add(lastUpdate);
+        updatePanel.add(updateButton);
         
         
         
-        JPanel recentCases = new JPanel(new BorderLayout());
-        recentCases.setBackground(new Color(0xFCFCFC));
-        recentCases.setBounds(215,234,200,200);
-        recentCases.add(Rcases, BorderLayout.NORTH);
         
-        JPanel totalCases = new JPanel(new BorderLayout());
+        
+        
+        /*JPanel totalCases = new JPanel(new BorderLayout());
         totalCases.setBackground(new Color(0xFCFCFC));
-        totalCases.setBounds(10,439,200,200);
+        totalCases.setPreferredSize(new Dimension(200,200));
         totalCases.add(Tcases, BorderLayout.NORTH);
-        totalCases.add(TcasesText, BorderLayout.CENTER);
+        totalCases.add(TcasesText, BorderLayout.CENTER);*/
        
         
         
-        JPanel totalDeaths = new JPanel(new BorderLayout());
-        totalDeaths.setBackground(new Color(0xFCFCFC));
-        totalDeaths.setBounds(215,439,200,200);
-        totalDeaths.add(deaths, BorderLayout.NORTH);
+     
         
-        //ComboBox; Drop down menu
-
-        List<String> PHU_List = new ArrayList<>(){{
-            add("Ontario");
-            DATASETS.get("Confirmed Covid Cases In Ontario")
-                    .getTable()
-                    .column("Reporting_PHU")
-                    .unique()
-                    .asList()
-                    .forEach(x->add(x.toString()));
-       }};
-        REGION_LIST = new JComboBox(PHU_List.toArray(new String[0]));
-
-        REGION_LIST.setEditable(true);
-        REGION_LIST.setBounds(10,205,300,28);
-        REGION_LIST.addActionListener(this);
+        
         
         //Update/Download Button
-        updateButton.setFont(new Font("Cambria", 0, 25));
-        updateButton.setBackground(Color.WHITE);
-        updateButton.setForeground(JG_RED);
-        updateButton.addActionListener(this);
-        updateButton.setBounds(500,205,150,50);
+        
+       
         
         downloadButton.setFont(new Font("Cambria", 0, 25));
         downloadButton.setBackground(Color.WHITE);
         downloadButton.setForeground(JG_RED);
         downloadButton.addActionListener(this);
-        downloadButton.setBounds(655,205,165,50);
-        
-        //menu bar
-        menuBar = new JMenuBar();
-
-        
-        
-        
-        
         
         
         
         //statistics panel 
-        statsPanel.add(changeCases);
-        statsPanel.add(recentCases);
-        statsPanel.add(totalCases);
-        statsPanel.add(totalDeaths);
+        statsPanel.add(updatePanel);
+        statsPanel.add(casePanel);
+        statsPanel.add(totalCasesPanel);
+       
+        //graph panel
+        graphPanel.setBackground(Color.WHITE);
         
         //PHU panel
-        displayPanel.add(statsPanel, BorderLayout.WEST);
-        displayPanel.add(updateButton);
-        displayPanel.add(downloadButton);
+        snapshotPanel.add(statsPanel);
+        snapshotPanel.add(graphPanel);
         
+       
         
-        //Parent Panel 
-        */
         
     }
     
@@ -192,6 +318,22 @@ public class Dashboard implements ActionListener {
             
            
         }
+    }
+
+    private void casesSetup() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void demographicsSetup() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void regionsSetup() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    }
+
+    private void vaccinationSetup() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     
 }
