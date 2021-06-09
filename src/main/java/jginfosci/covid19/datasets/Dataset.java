@@ -22,6 +22,9 @@ import tech.tablesaw.plotly.components.Layout;
 import tech.tablesaw.plotly.traces.*;
 import java.time.format.DateTimeFormatter;
 import java.time.LocalDateTime;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import jginfosci.covid19.dae.DateAndTime;
 
 /**
@@ -312,9 +315,10 @@ public class Dataset{
     }
     /**
      * Makes table from saw
+     * 
      * @see IO#sawToTable(java.nio.file.Path, java.lang.String) 
      */
-    public void makeTableSaw(){
+    public void makeTableSaw(){          
         this.table = IO.sawToTable(Paths.get(sawPath), name);
     }
     /**
@@ -329,13 +333,4 @@ public class Dataset{
             Logger.getLogger(Dataset.class.getName()).log(Level.SEVERE, null, ex);      
         } 
     }
-    }
-
-
-
-
-    
-
-
-
-
+}

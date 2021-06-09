@@ -18,9 +18,9 @@ public class DateAndTime {
      * Format of the {@link LocalDateTime}.
      * <pre>Format yyyy-MM-dd HH:mm</pre>
      */
-    private static final DateTimeFormatter lastUpdatedFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-    private static final DateTimeFormatter displayFormat = DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy");
-    private static final DateTimeFormatter dataFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    public static final DateTimeFormatter lastUpdatedFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    public static final DateTimeFormatter displayFormat = DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy");
+    public static final DateTimeFormatter dataFormat = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
     /**
      *

@@ -116,9 +116,12 @@ public class Environment {
                 public void run(){
                 DATASET_LIST.stream()
                 .forEach(s -> DATASETS.put(s, IO.load(s, true))); 
-                System.out.println(DATASETS.get("Confirmed Covid Cases In Ontario").getTable().rowCount());
                 }
                 }).start();
+    }
+    
+    public static Table tableFor(String datasetName){
+        return DATASETS.get(datasetName).getTable();
     }
     
     public static List<String> getRegionList(){

@@ -108,6 +108,17 @@ public abstract class GUIUtil {
     }
     
     
+    /**
+     * We use Cambria a lot....
+     * @param fontType  the font type, use Font constants.
+     * @param size  the font size. self explanatory. 
+     * @return  the Cambria {@link Font}
+     */
+    public static final Font Cambria(int fontType, int size){
+        return new Font("Cambria", fontType, size);
+    } 
+    
+    
 
     
     
