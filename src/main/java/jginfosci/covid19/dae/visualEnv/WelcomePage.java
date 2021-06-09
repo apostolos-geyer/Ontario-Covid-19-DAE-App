@@ -57,7 +57,7 @@ public final class WelcomePage implements ActionListener{
     @Override
     public void actionPerformed(ActionEvent e) {
         if(e.getSource()==loadButton){
-            //Environment.mapAllCurrentDatasets();
+            Environment.mapAllCurrentDatasets();
             welcomeWinFrame.dispose();
             Dashboard d = new Dashboard(); 
         }
