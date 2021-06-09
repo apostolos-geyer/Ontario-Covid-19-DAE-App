@@ -4,6 +4,8 @@
  * and open the template in the editor.
  */
 package jginfosci.covid19.dae;
+import com.formdev.flatlaf.FlatLightLaf;
+import java.awt.Color;
 import jginfosci.covid19.dae.visualEnv.WelcomePage;
 import jginfosci.covid19.datasets.IO;
 import jginfosci.covid19.datasets.Dataset;
@@ -13,6 +15,7 @@ import java.util.function.Consumer;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import tech.tablesaw.api.*;
 import tech.tablesaw.columns.numbers.NumberColumnFormatter;
 import tech.tablesaw.io.saw.*;
@@ -21,6 +24,7 @@ import tech.tablesaw.plotly.api.VerticalBarPlot;
 import tech.tablesaw.plotly.components.Layout;
 import static jginfosci.covid19.datasets.IO.DATASET_FOLDER;
 import tech.tablesaw.plotly.api.*;
+import static jginfosci.covid19.dae.visualEnv.GUIUtil.JG_RED;
 
 
 
@@ -117,6 +121,22 @@ public class Environment {
                 }).start();
     }
     
+    public static List<String> getRegionList(){
+        List<String> regions = new ArrayList<>(){{
+            add("Ontario");
+            DATASETS.get("Confirmed Covid Cases In Ontario")
+                    .getTable()
+                    .column("Reporting_PHU")
+                    .unique()
+                    .asList()
+                    .forEach(x->{
+                    add(x.toString());
+                    });
+        }};
+        
+        return regions;
+    }
+    
 
 
         /**
@@ -166,6 +186,12 @@ public class Environment {
                         
                     case("basic"):
                         loadList();
+                        try{
+                            UIManager.setLookAndFeel(new FlatLightLaf());
+                            
+                        }catch(Exception ex){ex.printStackTrace();}
+                        
+                        
                         SwingUtilities.invokeLater(new Runnable() {
                             @Override
                             public void run() {

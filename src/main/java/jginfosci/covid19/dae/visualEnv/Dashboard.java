@@ -1,56 +1,60 @@
 package jginfosci.covid19.dae.visualEnv;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Container;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.Font;
-import java.awt.GridLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.ArrayList;
-import java.util.List;
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JMenuBar;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.List; import java.util.ArrayList;
+import javax.swing.*;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 import jginfosci.covid19.dae.DateAndTime;
 import jginfosci.covid19.dae.Environment;
 import static jginfosci.covid19.dae.Environment.DATASETS;
-import static jginfosci.covid19.dae.visualEnv.WelcomePage.JG_RED;
+import static jginfosci.covid19.dae.Environment.getRegionList;
+import static jginfosci.covid19.dae.visualEnv.GUIUtil.*;
 
 /**
  *
  * @author nathanjohnson
  */
 public class Dashboard implements ActionListener {
-   private final JFrame dash = new JFrame();
-   private JPanel parentPanel,datePanel,PHUpanel,statsPanel;
-   private Container content;
+   private final JFrame dash = basic_frame();
+   private JTabbedPane pages;
+   private JPanel 
+           parentPanel = parent_panel(),
+           displayPanel = display_panel(),
+           statsPanel;
    private final JButton PHU = new JButton();
-   private JComboBox phuChoice;
+   private final JComboBox REGION_LIST = new JComboBox(getRegionList().toArray(new String[0]));
    private JMenuBar menuBar;
    private final JButton updateButton = new JButton("UPDATE"),downloadButton = new JButton("DOWNLOAD");
     
     
-    void DashBoard(JPanel header){
+    void initComponents(){
         
-        PHUpanel = new JPanel(new BorderLayout());
-        PHUpanel.setPreferredSize(new Dimension(1380,550));
-        PHUpanel.setBackground(Color.BLUE);
+        dash.setContentPane(parentPanel);
+        parentPanel.setLayout(new BorderLayout());
         
+        displayPanel.setLayout(new BorderLayout());
+        UIManager.put("TabbedPane.underlineColor", JG_RED);
+        pages = new JTabbedPane(){{
+            setFont(new Font("Cambria", Font.BOLD + Font.ITALIC, 25));
+            setBackground(new Color(0xF5BCBC));
+            add(" TODAYS SNAPSHOT ", new JLabel("what"));
+            add(" CASES ", new JLabel("what"));
+            add(" DEMOGRAPHICS ", new JLabel("what"));
+            add(" REGIONS ", new JLabel("what"));
+            add(" VACCINATION ", new JLabel("what"));
+        }};
+        
+        
+        displayPanel.add(pages, BorderLayout.CENTER);
+        
+
+        parentPanel.add(header_panel(), BorderLayout.NORTH);
+        parentPanel.add(displayPanel, BorderLayout.CENTER);
+        dash.pack();
+        /*
         statsPanel = new JPanel(new GridLayout(2,2,5,5));
-        statsPanel.setPreferredSize(new Dimension(500,500));
-        statsPanel.setBackground(Color.WHITE);
+        statsPanel.setPreferredSize(new Dimension(500,600));
         
        
         
@@ -89,19 +93,19 @@ public class Dashboard implements ActionListener {
         
         //Statistical Panels
         JPanel changeCases = new JPanel(new BorderLayout());
-        changeCases.setBackground(new Color(0xC0C0C0));
+        changeCases.setBackground(new Color(0xFCFCFC));
         changeCases.setBounds(10,234,200,200);
         changeCases.add(cases, BorderLayout.NORTH);
         
         
         
         JPanel recentCases = new JPanel(new BorderLayout());
-        recentCases.setBackground(new Color(0xC0C0C0));
+        recentCases.setBackground(new Color(0xFCFCFC));
         recentCases.setBounds(215,234,200,200);
         recentCases.add(Rcases, BorderLayout.NORTH);
         
         JPanel totalCases = new JPanel(new BorderLayout());
-        totalCases.setBackground(new Color(0xC0C0C0));
+        totalCases.setBackground(new Color(0xFCFCFC));
         totalCases.setBounds(10,439,200,200);
         totalCases.add(Tcases, BorderLayout.NORTH);
         totalCases.add(TcasesText, BorderLayout.CENTER);
@@ -109,13 +113,13 @@ public class Dashboard implements ActionListener {
         
         
         JPanel totalDeaths = new JPanel(new BorderLayout());
-        totalDeaths.setBackground(new Color(0xC0C0C0));
+        totalDeaths.setBackground(new Color(0xFCFCFC));
         totalDeaths.setBounds(215,439,200,200);
         totalDeaths.add(deaths, BorderLayout.NORTH);
         
         //ComboBox; Drop down menu
 
-       List<String> PHU_List = new ArrayList<>(){{
+        List<String> PHU_List = new ArrayList<>(){{
             add("Ontario");
             DATASETS.get("Confirmed Covid Cases In Ontario")
                     .getTable()
@@ -124,11 +128,11 @@ public class Dashboard implements ActionListener {
                     .asList()
                     .forEach(x->add(x.toString()));
        }};
-        phuChoice = new JComboBox(PHU_List.toArray(new String[0]));
+        REGION_LIST = new JComboBox(PHU_List.toArray(new String[0]));
 
-        phuChoice.setEditable(true);
-        phuChoice.setBounds(10,205,300,28);
-        phuChoice.addActionListener(this);
+        REGION_LIST.setEditable(true);
+        REGION_LIST.setBounds(10,205,300,28);
+        REGION_LIST.addActionListener(this);
         
         //Update/Download Button
         updateButton.setFont(new Font("Cambria", 0, 25));
@@ -146,15 +150,11 @@ public class Dashboard implements ActionListener {
         //menu bar
         menuBar = new JMenuBar();
 
-        dash.setSize(new Dimension(1380,800));
-        dash.setJMenuBar(menuBar);
         
         
-        Container c = dash.getContentPane();
-        c.setLayout(new BorderLayout());
         
-        parentPanel = new JPanel(new BorderLayout());
-        parentPanel.setBackground(Color.WHITE);
+        
+        
         
         
         //statistics panel 
@@ -164,33 +164,28 @@ public class Dashboard implements ActionListener {
         statsPanel.add(totalDeaths);
         
         //PHU panel
-        PHUpanel.add(statsPanel, BorderLayout.WEST);
-        PHUpanel.add(updateButton);
-        PHUpanel.add(downloadButton);
+        displayPanel.add(statsPanel, BorderLayout.WEST);
+        displayPanel.add(updateButton);
+        displayPanel.add(downloadButton);
         
         
         //Parent Panel 
-        c.add(parentPanel, BorderLayout.CENTER);    
-        parentPanel.add(PHUpanel, BorderLayout.SOUTH);
+        */
         
-        parentPanel.add(header, BorderLayout.NORTH);
-        dash.pack();
     }
     
-    public Dashboard(JPanel p){
-    
+    public Dashboard(){
     dash.setTitle("COVID DASHBOARD SESSION : "+DateAndTime.dataDate());
     dash.setDefaultCloseOperation(EXIT_ON_CLOSE);
-    DashBoard(p);
-    dash.pack();
+    initComponents();
     dash.setLocationRelativeTo(null);
     dash.setVisible(true);
     }
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        if(e.getSource()==phuChoice){
-            System.out.println(phuChoice.getSelectedItem());
+        if(e.getSource()==REGION_LIST){
+            System.out.println(REGION_LIST.getSelectedItem());
         }
         if(e.getSource()==updateButton){
             Environment.mapAllDatasetsUpdate();
