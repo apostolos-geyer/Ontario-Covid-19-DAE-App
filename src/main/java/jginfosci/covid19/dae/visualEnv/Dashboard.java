@@ -38,7 +38,7 @@ public class Dashboard implements ActionListener {
            casePanel = new JPanel(),
            totalCasesPanel = new JPanel();
    
-   private final JButton PHU = new JButton();
+   private final JButton PHU = new JButton(),fxButton = new JButton("open FX");
    private final JComboBox REGION_LIST = new JComboBox(getRegionList().toArray(new String[0]));
    private JMenuBar menuBar;
    private final JButton updateButton = new JButton("UPDATE"),downloadButton = new JButton("DOWNLOAD");
@@ -84,6 +84,8 @@ public class Dashboard implements ActionListener {
         parentPanel.add(header_panel(), BorderLayout.NORTH);
         parentPanel.add(displayPanel, BorderLayout.CENTER);
         dash.pack();
+        
+        
         
         
         
@@ -348,13 +350,18 @@ public class Dashboard implements ActionListener {
         statsPanel.add(totalCasesPanel);
        
         //graph panel
+        fxButton.addActionListener(this);
         graphPanel.setBackground(Color.WHITE);
+        graphPanel.setLayout(new FlowLayout());
+        graphPanel.add(fxButton);
+
         
         //PHU panel
         snapshotPanel.add(statsPanel);
         snapshotPanel.add(graphPanel);
 
     }
+    
     
     public Dashboard(){
     dash.setTitle("COVID DASHBOARD SESSION : "+DateAndTime.dataDate());
@@ -373,9 +380,14 @@ public class Dashboard implements ActionListener {
         if(e.getSource()==updateButton){
             Environment.mapAllDatasetsUpdate();
             this.initComponents();
-            
-           
+          
         }
+       if(e.getSource()==fxButton){
+           dash.dispose();
+            DisplayGraph dg = new DisplayGraph();
+          
+        }
+        
     }
 
     private void casesSetup() {
