@@ -14,6 +14,12 @@ import static jginfosci.covid19.dae.Environment.getRegionList;
 import static jginfosci.covid19.dae.Environment.tableFor;
 import static jginfosci.covid19.dae.visualEnv.GUIUtil.*;
 import tech.tablesaw.api.Table;
+import tech.tablesaw.plotly.api.TimeSeriesPlot;
+import tech.tablesaw.plotly.components.Config;
+import tech.tablesaw.plotly.components.Figure;
+import tech.tablesaw.plotly.components.Layout;
+import tech.tablesaw.plotly.components.Margin;
+import tech.tablesaw.plotly.traces.ScatterTrace;
 
 /**
  *
@@ -38,7 +44,7 @@ public class Dashboard implements ActionListener {
            casePanel = new JPanel(),
            totalCasesPanel = new JPanel();
    
-   private final JButton PHU = new JButton(),fxButton = new JButton("open FX");
+   private final JButton PHU = new JButton();
    private final JComboBox REGION_LIST = new JComboBox(getRegionList().toArray(new String[0]));
    private JMenuBar menuBar;
    private final JButton updateButton = new JButton("UPDATE"),downloadButton = new JButton("DOWNLOAD");
@@ -350,10 +356,35 @@ public class Dashboard implements ActionListener {
         statsPanel.add(totalCasesPanel);
        
         //graph panel
-        fxButton.addActionListener(this);
-        graphPanel.setBackground(Color.WHITE);
-        graphPanel.setLayout(new FlowLayout());
-        graphPanel.add(fxButton);
+        graphPanel.setBackground(Color.BLACK);
+        graphPanel.setLayout(new BorderLayout());
+        
+        Table t = confirmedCOVID.xTabCounts("Case_Reported_Date");
+            t.column(0).setName("date");
+            t = t.sortOn("date");
+            //System.out.println(t.print());
+            
+            //Layout figLayout = Layout.builder("Cases Per Day", "Day", "# Cases").width(690).height(400).build();
+            Figure casesPerDay = TimeSeriesPlot.create("cases by day",t, "date", "Count");
+            casesPerDay.setConfig(Config.builder().displayModeBar(false).build());
+            casesPerDay.setLayout(Layout.builder("", "Day", "Reported Cases")
+                    .margin(Margin.builder().top(0).bottom(60).left(50).right(0).build())
+                        .width(600)
+                        .height(400)
+                        .build());
+
+            //.build();
+            /*ScatterTrace.builder(t.column("date"), t.numberColumn("Count"))        
+                        .mode(ScatterTrace.Mode.LINE)
+                        .build()*/
+            
+            
+        
+        
+        graphPanel.add(new PlotPanel(casesPerDay
+                , 680, 450){{setBackground(JG_RED);}}, BorderLayout.CENTER);
+        
+
 
         
         //PHU panel
@@ -380,11 +411,6 @@ public class Dashboard implements ActionListener {
         if(e.getSource()==updateButton){
             Environment.mapAllDatasetsUpdate();
             this.initComponents();
-          
-        }
-       if(e.getSource()==fxButton){
-           dash.dispose();
-            DisplayGraph dg = new DisplayGraph();
           
         }
         
