@@ -8,6 +8,9 @@ import jginfosci.covid19.datasets.IO;
 import jginfosci.covid19.datasets.Dataset;
 import java.io.*;
 import java.util.*;
+import javax.swing.JFrame;
+import static jginfosci.covid19.dae.Environment.tableFor;
+import jginfosci.covid19.dae.visualEnv.PlotPanel;
 import tech.tablesaw.api.*;
 import tech.tablesaw.columns.numbers.NumberColumnFormatter;
 import tech.tablesaw.io.saw.*;
@@ -16,7 +19,9 @@ import tech.tablesaw.plotly.api.VerticalBarPlot;
 import tech.tablesaw.plotly.components.Layout;
 import static jginfosci.covid19.datasets.IO.DATASET_FOLDER;
 import tech.tablesaw.plotly.api.*;
-
+import static tech.tablesaw.aggregate.AggregateFunctions.*;
+import tech.tablesaw.plotly.components.Figure;
+import tech.tablesaw.plotly.components.Font;
 
 /**
  * demo version
@@ -117,8 +122,26 @@ public class EnvironmentDemo{
          * @throws IOException 
          */
         public static void main(String [] args) throws IOException{
-            loadList();
-            loadDatasets();
+            //Environment.loadList();
+           /* Environment.mapDataset("Confirmed Covid Cases In Ontario", false);
+            Table confirmedCOVID = Environment.tableFor("Confirmed Covid Cases In Ontario")
+                           .sortOn("Case_Reported_Date"); 
+            
+            Table t = confirmedCOVID.xTabCounts("Case_Reported_Date");
+            t.column(0).setName("date");
+            t = t.sortOn("date");
+            System.out.println(t.print());
+            
+            Layout figLayout = Layout.builder().width(690).height(400).build();
+            Figure f = TimeSeriesPlot.create("cases by day",t, "date", "Count");
+            
+            
+           
+            
+            
+            
+            
+            
             
             
           
@@ -131,7 +154,7 @@ public class EnvironmentDemo{
             
             
             
-            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
+            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));*/
             
             //DATASET_LIST.forEach(System.out::println);
             

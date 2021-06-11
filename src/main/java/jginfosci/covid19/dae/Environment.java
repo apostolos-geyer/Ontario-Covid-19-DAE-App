@@ -16,6 +16,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import jginfosci.covid19.dae.visualEnv.Dashboard;
 import tech.tablesaw.api.*;
 import tech.tablesaw.columns.numbers.NumberColumnFormatter;
 import tech.tablesaw.io.saw.*;
@@ -189,6 +190,7 @@ public class Environment {
                         
                     case("basic"):
                         loadList();
+                        mapAllCurrentDatasets();
                         try{
                             UIManager.setLookAndFeel(new FlatLightLaf());
                             
@@ -198,7 +200,7 @@ public class Environment {
                         SwingUtilities.invokeLater(new Runnable() {
                             @Override
                             public void run() {
-                                new WelcomePage();
+                                new Dashboard();
                             }
                         });
                         
