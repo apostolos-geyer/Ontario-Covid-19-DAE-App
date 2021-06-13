@@ -1,6 +1,7 @@
 package jginfosci.covid19.dae.visualEnv;
 
 import java.awt.*;
+import static java.awt.Component.LEFT_ALIGNMENT;
 import java.awt.event.*;
 import java.time.LocalDate;
 import java.util.List; import java.util.ArrayList;
@@ -42,7 +43,15 @@ public class Dashboard implements ActionListener {
            graphPanel=new JPanel(),
            snapshotTitlePanel=new JPanel(),
            casePanel = new JPanel(),
-           totalCasesPanel = new JPanel();
+           totalCasesPanel = new JPanel(),
+   
+           casesSetupPanel = parent_panel(),
+           graphSelectorPanel = display_panel(),
+           casesGraphPanel = display_panel();
+   private JScrollPane scrollPane;
+   private JCheckBox graphCases,graphDeaths;
+           
+           
    
    private final JButton PHU = new JButton();
    private final JComboBox REGION_LIST = new JComboBox(getRegionList().toArray(new String[0]));
@@ -66,8 +75,8 @@ public class Dashboard implements ActionListener {
         downloadButton.addActionListener(this);
         
         snapshotSetup();
-        /*casesSetup();
-        demographicsSetup();
+        casesSetup();
+        /*demographicsSetup();
         regionsSetup();
         vaccinationSetup();*/
         
@@ -77,7 +86,7 @@ public class Dashboard implements ActionListener {
             setFont(Cambria(3,25));
             setBackground(new Color(0xF5BCBC));
             add(" TODAYS SNAPSHOT ", snapshotPanel);
-            add(" CASES ", new JLabel("what"));
+            add(" CASES ", casesSetupPanel);
             add(" DEMOGRAPHICS ", new JLabel("what"));
             add(" REGIONS ", new JLabel("what"));
             add(" VACCINATION ", new JLabel("what"));
@@ -370,7 +379,7 @@ public class Dashboard implements ActionListener {
             casesPerDay.setLayout(Layout.builder("", "Day", "Reported Cases")
                     .margin(Margin.builder().top(0).bottom(60).left(50).right(0).build())
                         .width(600)
-                        .height(400)
+                        .height(550)
                         .build());
 
             //.build();
@@ -382,7 +391,7 @@ public class Dashboard implements ActionListener {
         
         
         graphPanel.add(new PlotPanel(casesPerDay
-                , 680, 450){{setBackground(JG_RED);}}, BorderLayout.CENTER);
+                , 680, 580){{setBackground(JG_RED);}}, BorderLayout.CENTER);
         
 
 
@@ -394,6 +403,103 @@ public class Dashboard implements ActionListener {
     }
     
     
+     private void casesSetup() {
+         
+         JPanel scrollPanel = new JPanel();
+         scrollPanel.setBackground(new Color(78,96,100));
+         scrollPanel.setPreferredSize(new Dimension(900,1500));
+         scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.Y_AXIS));
+         scrollPanel.setBorder(BorderFactory.createCompoundBorder
+        (BorderFactory.createLineBorder(JG_RED,2,true),
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
+         
+         JPanel graphSelectorPanel = new JPanel();
+         graphSelectorPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
+         graphSelectorPanel.setPreferredSize(new Dimension(1400,150));
+         graphSelectorPanel.setBackground(Color.WHITE);
+         
+         JPanel casesGraphsPanel = new JPanel();
+
+         casesGraphsPanel.setPreferredSize(new Dimension(1400, 2000));
+         casesGraphsPanel.setBackground(Color.LIGHT_GRAY);
+         
+         JPanel graphContainer = new JPanel();
+         graphContainer.setBackground(Color.BLUE);
+         graphContainer.setPreferredSize(new Dimension(900,900));
+         
+         casesGraphsPanel.add(graphContainer);
+         
+         JPanel graphCheckBoxes = new JPanel();
+         BoxLayout checkBox = new BoxLayout(graphCheckBoxes, BoxLayout.Y_AXIS);
+         graphCheckBoxes.setBorder(BorderFactory.createCompoundBorder
+        (BorderFactory.createLineBorder(JG_RED,2,true),
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
+         graphCheckBoxes.setLayout(checkBox);
+         graphCheckBoxes.setPreferredSize(new Dimension(200,100));
+         graphCheckBoxes.setBackground(Color.WHITE);
+         
+         graphCases = new JCheckBox("Graph Cases");
+         graphCases.addActionListener(this);
+         
+         graphDeaths = new JCheckBox("Graph Deaths");
+         graphDeaths.addActionListener(this);
+         
+         
+         graphCheckBoxes.add(graphCases);
+         graphCheckBoxes.add(graphDeaths);
+         
+         JPanel sliderPanel = new JPanel(new BorderLayout());
+         sliderPanel.setPreferredSize(new Dimension(700,100));
+         sliderPanel.setBorder(BorderFactory.createCompoundBorder
+        (BorderFactory.createLineBorder(JG_RED,2,true),
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
+         
+         JSlider casesOverTime = new JSlider();
+         
+         sliderPanel.add(casesOverTime, BorderLayout.SOUTH);
+         
+         JPanel phuPanel = new JPanel();
+         
+         phuPanel.setPreferredSize(new Dimension(440,100));
+         phuPanel.setBorder(BorderFactory.createCompoundBorder
+        (BorderFactory.createLineBorder(JG_RED,2,true),
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
+         
+         String[] phuList = DATASETS.get("Confirmed Covid Cases In Ontario")
+                    .getTable()
+                    .column("Reporting_PHU")
+                    .unique()
+                    .asList()
+                    .toArray(new String[0]);
+         JComboBox phus = new JComboBox(phuList);
+         
+         phuPanel.add(phus);
+         
+         graphSelectorPanel.add(graphCheckBoxes);
+         graphSelectorPanel.add(sliderPanel);
+         graphSelectorPanel.add(phuPanel);
+         
+         
+         
+         
+        
+         
+         
+         scrollPanel.add(graphSelectorPanel);
+         scrollPanel.add(casesGraphsPanel);
+         
+         scrollPane = new JScrollPane(scrollPanel);
+         scrollPane.setAlignmentX(LEFT_ALIGNMENT);
+         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+         scrollPane.setPreferredSize(new Dimension(900, 900));
+         
+        
+        
+         casesSetupPanel.setLayout(new BorderLayout());
+         casesSetupPanel.add(scrollPane, BorderLayout.CENTER);
+        
+    }
     public Dashboard(){
     dash.setTitle("COVID DASHBOARD SESSION : "+DateAndTime.dataDate());
     dash.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -414,11 +520,16 @@ public class Dashboard implements ActionListener {
           
         }
         
+        if(e.getSource()==graphCases){
+            
+        }
+        if(e.getSource()==graphDeaths){
+            
+        }
+        
     }
 
-    private void casesSetup() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+   
 
     private void demographicsSetup() {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
