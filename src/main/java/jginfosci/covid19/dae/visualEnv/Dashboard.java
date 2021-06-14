@@ -47,8 +47,26 @@ public class Dashboard implements ActionListener {
    
            casesSetupPanel = parent_panel(),
            graphSelectorPanel = display_panel(),
-           casesGraphPanel = display_panel();
-   private JScrollPane scrollPane;
+           casesGraphPanel = display_panel(),
+           
+           demographicsPanel = parent_panel(),
+           maleCasesByAge = display_panel(),
+           femaleCasesByAge = display_panel(),
+           maleOutcomesByAge = display_panel(),
+           femaleOutcomesByAge = display_panel(),
+           
+           regionsPanel = parent_panel(),
+           
+           vaccinePanel = parent_panel();
+   
+   
+   
+           
+           
+   
+           
+   
+   private JScrollPane scrollPane,scrollPane2,scrollPane3,scrollPane4;
    private JCheckBox graphCases,graphDeaths;
            
            
@@ -76,9 +94,9 @@ public class Dashboard implements ActionListener {
         
         snapshotSetup();
         casesSetup();
-        /*demographicsSetup();
+        demographicsSetup();
         regionsSetup();
-        vaccinationSetup();*/
+        vaccinationSetup();
         
         displayPanel.setLayout(new BorderLayout());
         UIManager.put("TabbedPane.underlineColor", JG_RED);
@@ -87,9 +105,9 @@ public class Dashboard implements ActionListener {
             setBackground(new Color(0xF5BCBC));
             add(" TODAYS SNAPSHOT ", snapshotPanel);
             add(" CASES ", casesSetupPanel);
-            add(" DEMOGRAPHICS ", new JLabel("what"));
-            add(" REGIONS ", new JLabel("what"));
-            add(" VACCINATION ", new JLabel("what"));
+            add(" DEMOGRAPHICS ", demographicsPanel);
+            add(" REGIONS ", regionsPanel);
+            add(" VACCINATION ", vaccinePanel);
         }};
         
         
@@ -406,14 +424,14 @@ public class Dashboard implements ActionListener {
      private void casesSetup() {
          
          JPanel scrollPanel = new JPanel();
-         scrollPanel.setBackground(new Color(78,96,100));
+         scrollPanel.setBackground(Color.WHITE);
          scrollPanel.setPreferredSize(new Dimension(900,1500));
          scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.Y_AXIS));
          scrollPanel.setBorder(BorderFactory.createCompoundBorder
         (BorderFactory.createLineBorder(JG_RED,2,true),
                 BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
          
-         JPanel graphSelectorPanel = new JPanel();
+         graphSelectorPanel = new JPanel();
          graphSelectorPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
          graphSelectorPanel.setPreferredSize(new Dimension(1400,150));
          graphSelectorPanel.setBackground(Color.WHITE);
@@ -499,7 +517,90 @@ public class Dashboard implements ActionListener {
          casesSetupPanel.setLayout(new BorderLayout());
          casesSetupPanel.add(scrollPane, BorderLayout.CENTER);
         
+    } 
+     
+    private void demographicsSetup(){
+        JPanel scrollPanel2 = new JPanel();
+        scrollPanel2.setBackground(Color.WHITE);
+        scrollPanel2.setPreferredSize(new Dimension(900, 1500));
+        scrollPanel2.setLayout(new GridLayout(2,2));
+        scrollPanel2.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(JG_RED, 2, true),
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
+         
+        
+        String[] phuList = DATASETS.get("Confirmed Covid Cases In Ontario")
+                    .getTable()
+                    .column("Reporting_PHU")
+                    .unique()
+                    .asList()
+                    .toArray(new String[0]);
+         JComboBox phus1 = new JComboBox(phuList);
+         JComboBox phus2 = new JComboBox(phuList);
+         JComboBox phus3 = new JComboBox(phuList);
+         JComboBox phus4 = new JComboBox(phuList);
+         
+        maleCasesByAge = new JPanel();
+        maleCasesByAge.setBackground(new Color(0xFCFCFC));
+        maleCasesByAge.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(JG_RED, 2, true),
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
+        maleCasesByAge.setPreferredSize(new Dimension(450, 450));
+        
+        JLabel maleCasesTitle = new JLabel("MALE CASES BY AGE GROUP");
+        maleCasesTitle.setFont(Cambria(1,35));
+        maleCasesByAge.add(maleCasesTitle, BorderLayout.NORTH);
+        maleCasesByAge.add(phus1, BorderLayout.NORTH);
+
+        femaleCasesByAge = new JPanel();
+        femaleCasesByAge.setBackground(new Color(0xFCFCFC));
+        femaleCasesByAge.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(JG_RED, 2, true),
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
+        femaleCasesByAge.setPreferredSize(new Dimension(450, 450));
+        
+        
+        JLabel femaleCasesTitle = new JLabel("FEMALE CASES BY AGE GROUP");
+        femaleCasesTitle.setFont(Cambria(1, 35)); 
+        femaleCasesByAge.add(femaleCasesTitle, BorderLayout.NORTH); 
+        femaleCasesByAge.add(phus2, BorderLayout.NORTH);
+        
+        maleOutcomesByAge = new JPanel();
+        maleOutcomesByAge.setBackground(new Color(0xFCFCFC));
+        maleOutcomesByAge.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(JG_RED, 2, true),
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
+        maleOutcomesByAge.setPreferredSize(new Dimension(450, 450));
+         
+        JLabel maleOutcomesTitle = new JLabel("MALE OUTCOMES BY AGE GROUP");
+        maleOutcomesTitle.setFont(Cambria(1, 35));
+        maleOutcomesByAge.add(maleOutcomesTitle, BorderLayout.NORTH); 
+        maleOutcomesByAge.add(phus3, BorderLayout.NORTH);
+        
+        femaleOutcomesByAge = new JPanel();
+        femaleOutcomesByAge.setBackground(new Color(0xFCFCFC));
+        femaleOutcomesByAge.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(JG_RED, 2, true),
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
+        femaleOutcomesByAge.setPreferredSize(new Dimension(450, 450));
+         
+        JLabel femaleOutcomesTitle = new JLabel("FEMALE OUTCOMES BY AGE GROUP");
+        femaleOutcomesTitle.setFont(Cambria(1, 35));
+        femaleOutcomesByAge.add(femaleOutcomesTitle, BorderLayout.NORTH);
+        femaleOutcomesByAge.add(phus4, BorderLayout.NORTH);
+        
+
+         scrollPanel2.add(maleCasesByAge);
+         scrollPanel2.add(femaleCasesByAge);
+         scrollPanel2.add(maleOutcomesByAge);
+         scrollPanel2.add(femaleOutcomesByAge);
+         
+         
+         scrollPane2 = new JScrollPane(scrollPanel2);
+         scrollPane2.setAlignmentX(LEFT_ALIGNMENT);
+         scrollPane2.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+         scrollPane2.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+         scrollPane2.setPreferredSize(new Dimension(900, 900));
+         
+         demographicsPanel.setLayout(new BorderLayout());
+         demographicsPanel.add(scrollPane2, BorderLayout.CENTER);
     }
+   
     public Dashboard(){
     dash.setTitle("COVID DASHBOARD SESSION : "+DateAndTime.dataDate());
     dash.setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -516,7 +617,7 @@ public class Dashboard implements ActionListener {
         }
         if(e.getSource()==updateButton){
             Environment.mapAllDatasetsUpdate();
-            this.initComponents();
+            //this.initComponents();
           
         }
         
@@ -531,16 +632,46 @@ public class Dashboard implements ActionListener {
 
    
 
-    private void demographicsSetup() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-    }
+   
 
     private void regionsSetup() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        JPanel scrollPanel3 = new JPanel();
+        scrollPanel3.setBackground(Color.WHITE);
+        scrollPanel3.setPreferredSize(new Dimension(900, 1500));
+        scrollPanel3.setLayout(new GridLayout(2,2));
+        scrollPanel3.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(JG_RED, 2, true),
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
+        
+      
+        
+        
+         scrollPane3 = new JScrollPane(scrollPanel3);
+         scrollPane3.setAlignmentX(LEFT_ALIGNMENT);
+         scrollPane3.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+         scrollPane3.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+         scrollPane3.setPreferredSize(new Dimension(900, 900));
+         
+         regionsPanel.setLayout(new BorderLayout());
+         regionsPanel.add(scrollPane3);
     }
 
     private void vaccinationSetup() {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        JPanel scrollPanel4 = new JPanel();
+        scrollPanel4.setBackground(Color.WHITE);
+        scrollPanel4.setPreferredSize(new Dimension(900, 1500));
+        scrollPanel4.setLayout(new GridLayout(2,2));
+        scrollPanel4.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(JG_RED, 2, true),
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
+        
+        
+         scrollPane4 = new JScrollPane(scrollPanel4);
+         scrollPane4.setAlignmentX(LEFT_ALIGNMENT);
+         scrollPane4.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+         scrollPane4.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+         scrollPane4.setPreferredSize(new Dimension(900, 900));
+         
+         vaccinePanel.setLayout(new BorderLayout());
+         vaccinePanel.add(scrollPane4);
     }
     
 }
