@@ -13,7 +13,9 @@ import static jginfosci.covid19.dae.visualEnv.GUIUtil.*;
 /**
  *
  * @author nathanjohnson
- */
+ * @Deprecated  because it's unnecessary and we should cut down on any unessential 
+ *              overhead for the classloader.
+ */@Deprecated
 public final class WelcomePage implements ActionListener{
 
     private final JFrame welcomeWinFrame = basic_frame();

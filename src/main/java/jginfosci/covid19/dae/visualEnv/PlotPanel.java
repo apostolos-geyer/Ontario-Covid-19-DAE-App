@@ -59,6 +59,9 @@ public class PlotPanel extends JPanel{
     public PlotPanel(Figure f, int xDimension, int yDimension){
         initComponents(f, xDimension, yDimension);
     }
+
+    PlotPanel() {
+    }
   
       
     private void initComponents(Figure f, int xDimension, int yDimension){
