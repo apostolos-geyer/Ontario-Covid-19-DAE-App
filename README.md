@@ -4,7 +4,9 @@ This is a Java project me and my friend are working on a little bit for school, 
 
 
 # Project Status 
-I mean... It's been handed in for school, but this is just the beginning....
+I mean... It's been handed in for school, but this is just the beginning....   
+There are known issues, bad enough to be noticable, not bad enough for me to have the energy to write about them, but noticable enough that I won't have to!
+things don't work some times and are slow, ok?
 
 
 ## How to run  
