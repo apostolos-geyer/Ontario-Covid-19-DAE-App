@@ -6,7 +6,6 @@
 package jginfosci.covid19.dae;
 import com.formdev.flatlaf.FlatLightLaf;
 import java.awt.Color;
-import jginfosci.covid19.dae.visualEnv.WelcomePage;
 import jginfosci.covid19.datasets.IO;
 import jginfosci.covid19.datasets.Dataset;
 import java.io.*;
@@ -62,7 +61,8 @@ public class Environment {
      */
     public static final HashMap<String, Dataset> DATASETS = new HashMap<String, Dataset>();
     
-    
+    public static final HashMap<String, Integer> PHUtoCODE = new HashMap<String, Integer>();
+    public static final HashMap<Integer, String> CODEtoPHU = new HashMap<Integer, String>();
     /**
      * Load the {@link DATASET_LIST}.
      * <p>
@@ -96,9 +96,15 @@ public class Environment {
      * @since June 1, 2021
      */
     public static void mapAllCurrentDatasets(){
-        DATASET_LIST
-                .forEach(s -> DATASETS.put(s, IO.load(s, false)));
-                        
+                DATASET_LIST
+                .forEach(s -> DATASETS.put(s, IO.load(s, false)));  
+                tableFor("Confirmed Covid Cases In Ontario").forEach(row->{
+                PHUtoCODE.putIfAbsent(
+                    row.getString("Reporting_PHU"), row.getInt("Reporting_PHU_ID"));
+                CODEtoPHU.putIfAbsent(row.getInt("Reporting_PHU_ID"),row.getString("Reporting_PHU"));
+                
+                });
+                
     }
     
     /**
@@ -112,14 +118,23 @@ public class Environment {
      * @since June 1, 2021
      */
     public static void mapAllDatasetsUpdate() {
-                new Thread(new Runnable() {
-                @Override
-                public void run(){
-                DATASET_LIST.stream()
+                
+                DATASET_LIST
                 .forEach(s -> DATASETS.put(s, IO.load(s, true))); 
-                }
-                }).start();
+                tableFor("Confirmed Covid Cases In Ontario").forEach(row->{
+                PHUtoCODE.putIfAbsent(
+                    row.getString("Reporting_PHU"), row.getInt("Reporting_PHU_ID"));
+                CODEtoPHU.putIfAbsent(row.getInt("Reporting_PHU_ID"),row.getString("Reporting_PHU"));
+                
+                });
+                
+                
+                
     }
+    
+    
+    
+    
     
     public static Table tableFor(String datasetName){
         return DATASETS.get(datasetName).getTable();
@@ -155,22 +170,17 @@ public class Environment {
          *              If no argument is provided, the program will run in 
          *              "basic" mode <p>
          *              <strong>basic:</strong><br>
-         *              In basic mode, the program will sequentially load each 
-         *              {@link Dataset}, and the user will be able to decide 
-         *              which Datasets will use the data stored on the computer, 
-         *              and which will update.<p>
+         *              In basic mode, the program will load from local versions
+         *              of each Dataset.
          *              <strong>updated:</strong><br>
          *              <b><i>STARTUP IN UPDATED MODE CAN BE SLOW</i></b><br>
          *              In updated mode, the program will first update each Dataset
-         *              to its most recent version, and then launch straight to the 
+         *              to its most recent version (if possible), and then launch straight to the 
          *              Dashboard.<p> 
-         *              <strong>local:</strong><br>
-         *              In local mode, the program will build each Dataset from 
-         *              the versions currently stored in the project file, 
-         *              and then launch straight to the Dashboard, this is the 
-         *              fastest means of using the program, but will not use the
-         *              most recent metrics.<br> 
-         *              
+         *              <strong>setup:</strong><br>
+         *              In setup mode, the program will update all the datasets, 
+         *              but will not launch.
+         * 
          */
         public static void main(String... args){
             
@@ -186,6 +196,23 @@ public class Environment {
                     default:
                         System.out.println("Unrecognized Argument: "+argument+"\n"
                                 + "Running in \"basic\" mode.");
+                        loadList();
+                        mapAllCurrentDatasets();
+                        try {
+                            UIManager.setLookAndFeel(new FlatLightLaf());
+
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                new Dashboard();
+                            }
+                        });
+                        
+                        
                         break; 
                         
                     case("basic"):
@@ -209,12 +236,12 @@ public class Environment {
                     case("update"):
                         loadList();
                         mapAllDatasetsUpdate();
+                        break;
                         
-                        return;
-                        
-                        case("setup"):
+                    case("setup"):
                         loadList();
                         mapAllDatasetsUpdate();
+                        break;
 
                 }
             }

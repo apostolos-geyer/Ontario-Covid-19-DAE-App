@@ -5,35 +5,51 @@ import static java.awt.Component.LEFT_ALIGNMENT;
 import java.awt.event.*;
 import java.time.LocalDate;
 import java.util.List; import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ExecutionException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
 import javax.swing.border.BevelBorder;
+import jdk.jshell.spi.ExecutionControl.NotImplementedException;
 import jginfosci.covid19.dae.DateAndTime;
 import jginfosci.covid19.dae.Environment;
 import static jginfosci.covid19.dae.Environment.DATASETS;
 import static jginfosci.covid19.dae.Environment.getRegionList;
 import static jginfosci.covid19.dae.Environment.tableFor;
 import static jginfosci.covid19.dae.visualEnv.GUIUtil.*;
-import tech.tablesaw.api.Table;
+import tech.tablesaw.api.*;
 import tech.tablesaw.plotly.api.TimeSeriesPlot;
-import tech.tablesaw.plotly.components.Config;
-import tech.tablesaw.plotly.components.Figure;
-import tech.tablesaw.plotly.components.Layout;
-import tech.tablesaw.plotly.components.Margin;
+import tech.tablesaw.plotly.components.*;
 import tech.tablesaw.plotly.traces.ScatterTrace;
+import static tech.tablesaw.aggregate.AggregateFunctions.sum;
+import tech.tablesaw.plotly.Plot;
+import tech.tablesaw.plotly.traces.BarTrace;
+import tech.tablesaw.plotly.traces.Trace;
+import tech.tablesaw.selection.Selection;
 
 /**
  *
- * @author nathanjohnson
+ * @author Nathan Johnson
+ * @author Paul Geyer
  */
 public class Dashboard implements ActionListener {
     Table confirmedCOVID = tableFor("Confirmed Covid Cases In Ontario")
+                           .replaceColumn("Age_Group", 
+                                   tableFor("Confirmed Covid Cases In Ontario")
+                                           .stringColumn("Age_Group")
+                                           .replaceAll("<20", "0-19")
+                                           .setName("Age_Group"))
                            .sortOn("Case_Reported_Date"); 
-    
-    LocalDate mostRecentEntry = (confirmedCOVID.dateColumn("Case_Reported_Date")
+
+   LocalDate mostRecentEntry = (confirmedCOVID.dateColumn("Case_Reported_Date")
                                 .get(confirmedCOVID.rowCount()-1));
+   
+   
     
-   private final JFrame dash = basic_frame();
+   private JFrame dash = basic_frame();
    private JTabbedPane pages;
    private JPanel 
            parentPanel = parent_panel(),
@@ -45,39 +61,20 @@ public class Dashboard implements ActionListener {
            casePanel = new JPanel(),
            totalCasesPanel = new JPanel(),
    
-           casesSetupPanel = parent_panel(),
-           graphSelectorPanel = display_panel(),
-           casesGraphPanel = display_panel(),
            
            demographicsPanel = parent_panel(),
-           maleCasesByAge = display_panel(),
-           femaleCasesByAge = display_panel(),
-           maleOutcomesByAge = display_panel(),
-           femaleOutcomesByAge = display_panel(),
+           ageSexMortality = display_panel(),
+           newCasesDailyByAge = display_panel(),
+           demographicProportions = display_panel(),
+           demographicDeathProportions = display_panel(),
            
-           regionsPanel = parent_panel(),
-           cpcAndDeathRatePanel = display_panel(),
-           currentActiveCasesPanel = display_panel();
-           
-          
-   
-   
-   
-           
+           regionsPanel = parent_panel();
            
    
-           
-   
-   private JScrollPane scrollPane,scrollPane2,scrollPane3,scrollPane4;
-   private JCheckBox graphCases,graphDeaths;
-           
-           
-   
-   private final JButton PHU = new JButton();
-   private final JComboBox REGION_LIST = new JComboBox(getRegionList().toArray(new String[0]));
-   private JComboBox phus, phus1,phus2,phus3,phus4,phus5;
-   private JMenuBar menuBar;
-   private final JButton updateButton = new JButton("UPDATE"),downloadButton = new JButton("DOWNLOAD");
+   private JScrollPane scrollPane2,scrollPane3;
+     
+   //String[] region_list = getRegionList().toArray(new String[0]);
+   private final JButton updateButton = new JButton("UPDATE");
     
     
     void initComponents(){
@@ -90,15 +87,17 @@ public class Dashboard implements ActionListener {
         updateButton.setForeground(JG_RED);
         updateButton.addActionListener(this);
         
-        downloadButton.setFont(new Font("Cambria", 0, 25));
+        /*
+        downloadButton.setFont(Cambria(0,25));
         downloadButton.setBackground(Color.WHITE);
         downloadButton.setForeground(JG_RED);
         downloadButton.addActionListener(this);
+        */
         
         snapshotSetup();
-        casesSetup();
         demographicsSetup();
-        regionsSetup();
+        regionalPerformanceSetup();
+        //phuSetup();
         
         
         displayPanel.setLayout(new BorderLayout());
@@ -107,9 +106,8 @@ public class Dashboard implements ActionListener {
             setFont(Cambria(3,25));
             setBackground(new Color(0xF5BCBC));
             add(" TODAYS SNAPSHOT ", snapshotPanel);
-            add(" CASES ", casesSetupPanel);
-            add(" DEMOGRAPHICS ", demographicsPanel);
-            add(" REGIONS ", regionsPanel);
+            add(" DEMOGRAPHIC METRICS ", demographicsPanel);
+            add(" REGIONAL PERFORMANCE ", regionsPanel);
             
         }};
         
@@ -119,15 +117,6 @@ public class Dashboard implements ActionListener {
 
         parentPanel.add(header_panel(), BorderLayout.NORTH);
         parentPanel.add(displayPanel, BorderLayout.CENTER);
-        dash.pack();
-        
-        
-        
-        
-        
-       
-        
-        
         
         
     }
@@ -180,13 +169,6 @@ public class Dashboard implements ActionListener {
         double pctFatal = (fatalCases/totalCasesNum)*100;
         
 
-                
-        
-        
-        
-        
-        
-        //Statistical Labels
         snapshotPanel.setLayout(new GridLayout(1,2));
         
         statsPanel = new JPanel();
@@ -392,214 +374,83 @@ public class Dashboard implements ActionListener {
         Table t = confirmedCOVID.xTabCounts("Case_Reported_Date");
             t.column(0).setName("date");
             t = t.sortOn("date");
-            //System.out.println(t.print());
-            
-            //Layout figLayout = Layout.builder("Cases Per Day", "Day", "# Cases").width(690).height(400).build();
+ 
             Figure casesPerDay = TimeSeriesPlot.create("cases by day",t, "date", "Count");
-            casesPerDay.setConfig(Config.builder().displayModeBar(false).build());
+            casesPerDay.setConfig(defaultConfig);
             casesPerDay.setLayout(Layout.builder("", "Day", "Reported Cases")
-                    .margin(Margin.builder().top(0).bottom(60).left(50).right(0).build())
+                        .margin(defaultMargin)
                         .width(600)
                         .height(550)
-                        .build());
-
-            //.build();
-            /*ScatterTrace.builder(t.column("date"), t.numberColumn("Count"))        
-                        .mode(ScatterTrace.Mode.LINE)
-                        .build()*/
-            
-            
-        
-        
+                        .build());     
         graphPanel.add(new PlotPanel(casesPerDay
-                , 680, 580){{setBackground(JG_RED);}}, BorderLayout.CENTER);
-        
+                , 680, 580), BorderLayout.CENTER);
 
-
-        
-        //PHU panel
         snapshotPanel.add(statsPanel);
         snapshotPanel.add(graphPanel);
 
     }
     
-    
-     private void casesSetup() {
-         
-         JPanel scrollPanel = new JPanel();
-         scrollPanel.setBackground(Color.WHITE);
-         scrollPanel.setPreferredSize(new Dimension(900,1500));
-         scrollPanel.setLayout(new BoxLayout(scrollPanel, BoxLayout.Y_AXIS));
-         scrollPanel.setBorder(BorderFactory.createCompoundBorder
-        (BorderFactory.createLineBorder(JG_RED,2,true),
-                BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
-         
-         graphSelectorPanel = new JPanel();
-         graphSelectorPanel.setLayout(new FlowLayout(FlowLayout.LEFT));
-         graphSelectorPanel.setPreferredSize(new Dimension(1400,150));
-         graphSelectorPanel.setBackground(Color.WHITE);
-         
-         JPanel casesGraphsPanel = new JPanel();
 
-         casesGraphsPanel.setPreferredSize(new Dimension(1400, 2000));
-         casesGraphsPanel.setBackground(Color.LIGHT_GRAY);
-         
-         JPanel graphContainer = new JPanel();
-         graphContainer.setBackground(Color.BLUE);
-         graphContainer.setPreferredSize(new Dimension(900,900));
-         
-         casesGraphsPanel.add(graphContainer);
-         
-         JPanel graphCheckBoxes = new JPanel();
-         BoxLayout checkBox = new BoxLayout(graphCheckBoxes, BoxLayout.Y_AXIS);
-         graphCheckBoxes.setBorder(BorderFactory.createCompoundBorder
-        (BorderFactory.createLineBorder(JG_RED,2,true),
-                BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
-         graphCheckBoxes.setLayout(checkBox);
-         graphCheckBoxes.setPreferredSize(new Dimension(200,100));
-         graphCheckBoxes.setBackground(Color.WHITE);
-         
-         graphCases = new JCheckBox("Graph Cases");
-         graphCases.addActionListener(this);
-         
-         graphDeaths = new JCheckBox("Graph Deaths");
-         graphDeaths.addActionListener(this);
-         
-         
-         graphCheckBoxes.add(graphCases);
-         graphCheckBoxes.add(graphDeaths);
-         
-         JPanel sliderPanel = new JPanel(new BorderLayout());
-         sliderPanel.setPreferredSize(new Dimension(700,100));
-         sliderPanel.setBorder(BorderFactory.createCompoundBorder
-        (BorderFactory.createLineBorder(JG_RED,2,true),
-                BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
-         
-         JSlider casesOverTime = new JSlider();
-         
-         sliderPanel.add(casesOverTime, BorderLayout.SOUTH);
-         
-         JPanel phuPanel = new JPanel();
-         
-         phuPanel.setPreferredSize(new Dimension(440,100));
-         phuPanel.setBorder(BorderFactory.createCompoundBorder
-        (BorderFactory.createLineBorder(JG_RED,2,true),
-                BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
-         
-         String[] phuList = DATASETS.get("Confirmed Covid Cases In Ontario")
-                    .getTable()
-                    .column("Reporting_PHU")
-                    .unique()
-                    .asList()
-                    .toArray(new String[0]);
-       phus = new JComboBox(phuList);
-       phus.addActionListener(this);
-         
-         phuPanel.add(phus);
-         
-         graphSelectorPanel.add(graphCheckBoxes);
-         graphSelectorPanel.add(sliderPanel);
-         graphSelectorPanel.add(phuPanel);
-         
-         
-         
-         
-        
-         
-         
-         scrollPanel.add(graphSelectorPanel);
-         scrollPanel.add(casesGraphsPanel);
-         
-         scrollPane = new JScrollPane(scrollPanel);
-         scrollPane.setAlignmentX(LEFT_ALIGNMENT);
-         scrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-         scrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-         scrollPane.setPreferredSize(new Dimension(900, 900));
-         
-        
-        
-         casesSetupPanel.setLayout(new BorderLayout());
-         casesSetupPanel.add(scrollPane, BorderLayout.CENTER);
-        
-    } 
-     
-    private void demographicsSetup(){
+    private void demographicsSetup(){   
+
         JPanel scrollPanel2 = new JPanel();
         scrollPanel2.setBackground(Color.WHITE);
-        scrollPanel2.setPreferredSize(new Dimension(900, 1500));
+        scrollPanel2.setPreferredSize(new Dimension(900,1000));
         scrollPanel2.setLayout(new GridLayout(2,2));
         scrollPanel2.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(JG_RED, 2, true),
-                BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
+        BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
          
-        
-        String[] phuList = DATASETS.get("Confirmed Covid Cases In Ontario")
-                    .getTable()
-                    .column("Reporting_PHU")
-                    .unique()
-                    .asList()
-                    .toArray(new String[0]);
-        phus1 = new JComboBox(phuList);
-        phus1.addActionListener(this);
-        
-        phus2 = new JComboBox(phuList);
-        phus2.addActionListener(this);
-        
-        phus3 = new JComboBox(phuList);
-        phus3.addActionListener(this);
-        
-        phus4 = new JComboBox(phuList);
-        phus4.addActionListener(this);
          
-        maleCasesByAge = new JPanel();
-        maleCasesByAge.setBackground(new Color(0xFCFCFC));
-        maleCasesByAge.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(JG_RED, 2, true),
-                BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
-        maleCasesByAge.setPreferredSize(new Dimension(450, 450));
-        
-        JLabel maleCasesTitle = new JLabel("MALE CASES BY AGE GROUP");
-        maleCasesTitle.setFont(Cambria(1,35));
-        maleCasesByAge.add(maleCasesTitle, BorderLayout.NORTH);
-        maleCasesByAge.add(phus1, BorderLayout.NORTH);
-
-        femaleCasesByAge = new JPanel();
-        femaleCasesByAge.setBackground(new Color(0xFCFCFC));
-        femaleCasesByAge.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(JG_RED, 2, true),
-                BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
-        femaleCasesByAge.setPreferredSize(new Dimension(450, 450));
-        
-        
-        JLabel femaleCasesTitle = new JLabel("FEMALE CASES BY AGE GROUP");
-        femaleCasesTitle.setFont(Cambria(1, 35)); 
-        femaleCasesByAge.add(femaleCasesTitle, BorderLayout.NORTH); 
-        femaleCasesByAge.add(phus2, BorderLayout.NORTH);
-        
-        maleOutcomesByAge = new JPanel();
-        maleOutcomesByAge.setBackground(new Color(0xFCFCFC));
-        maleOutcomesByAge.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(JG_RED, 2, true),
-                BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
-        maleOutcomesByAge.setPreferredSize(new Dimension(450, 450));
-         
-        JLabel maleOutcomesTitle = new JLabel("MALE OUTCOMES BY AGE GROUP");
-        maleOutcomesTitle.setFont(Cambria(1, 35));
-        maleOutcomesByAge.add(maleOutcomesTitle, BorderLayout.NORTH); 
-        maleOutcomesByAge.add(phus3, BorderLayout.NORTH);
-        
-        femaleOutcomesByAge = new JPanel();
-        femaleOutcomesByAge.setBackground(new Color(0xFCFCFC));
-        femaleOutcomesByAge.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(JG_RED, 2, true),
-                BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
-        femaleOutcomesByAge.setPreferredSize(new Dimension(450, 450));
-         
-        JLabel femaleOutcomesTitle = new JLabel("FEMALE OUTCOMES BY AGE GROUP");
-        femaleOutcomesTitle.setFont(Cambria(1, 35));
-        femaleOutcomesByAge.add(femaleOutcomesTitle, BorderLayout.NORTH);
-        femaleOutcomesByAge.add(phus4, BorderLayout.NORTH);
+        ageSexMortality = new JPanel();
+        ageSexMortality.setBackground(new Color(0xFCFCFC));
+        ageSexMortality.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(JG_RED, 2, true),
+                                  BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
+        JLabel ageSexMortalityTitle = new JLabel("Mortality By Age And Sex");
+        ageSexMortalityTitle.setFont(Cambria(1,32));
+        ageSexMortality.add(ageSexMortalityTitle, BorderLayout.NORTH);
+        ageSexMortalityPlot();
         
 
-         scrollPanel2.add(maleCasesByAge);
-         scrollPanel2.add(femaleCasesByAge);
-         scrollPanel2.add(maleOutcomesByAge);
-         scrollPanel2.add(femaleOutcomesByAge);
+        newCasesDailyByAge = new JPanel();
+        newCasesDailyByAge.setBackground(new Color(0xFCFCFC));
+        newCasesDailyByAge.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(JG_RED, 2, true),
+                                     BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
+        JLabel newCasesDailyByAgeTitle = new JLabel("Daily Cases by Age Group");
+        newCasesDailyByAgeTitle.setFont(Cambria(1, 32)); 
+        newCasesDailyByAge.add(newCasesDailyByAgeTitle, BorderLayout.NORTH); 
+        ageDailyCasesPlot();
+
+        demographicProportions = new JPanel();
+        demographicProportions.setBackground(new Color(0xFCFCFC));
+        demographicProportions.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(JG_RED, 2, true),
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
+        JLabel demographicProportionsTitle = new JLabel("Proportion of Cases by Age and Sex");
+        demographicProportionsTitle.setFont(Cambria(1, 32));
+        demographicProportions.add(demographicProportionsTitle, BorderLayout.NORTH); 
+        ageSexCaseProportionPlot();
+        
+        demographicDeathProportions = new JPanel();
+        demographicDeathProportions.setBackground(new Color(0xFCFCFC));
+        demographicDeathProportions.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(JG_RED, 2, true),
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
+         
+        JLabel demographicDeathProportionsTitle = new JLabel("Proportion of Fatalities by Age and Sex");
+        demographicDeathProportionsTitle.setFont(Cambria(1, 32));
+        demographicDeathProportions.add(demographicDeathProportionsTitle, BorderLayout.NORTH);
+        ageSexDeathProportionPlot();
+
+                
+         JPanel mortalityRate = new JPanel();
+         mortalityRate.setBackground(new Color(0xFCFCFC));
+         mortalityRate.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(JG_RED, 2, true),
+                 BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
+        
+
+         scrollPanel2.add(ageSexMortality);
+         scrollPanel2.add(newCasesDailyByAge);
+         scrollPanel2.add(demographicProportions);
+         scrollPanel2.add(demographicDeathProportions);
+         
          
          
          scrollPane2 = new JScrollPane(scrollPanel2);
@@ -611,76 +462,510 @@ public class Dashboard implements ActionListener {
          demographicsPanel.setLayout(new BorderLayout());
          demographicsPanel.add(scrollPane2, BorderLayout.CENTER);
     }
-   
-    public Dashboard(){
-    dash.setTitle("COVID DASHBOARD SESSION : "+DateAndTime.dataDate());
-    dash.setDefaultCloseOperation(EXIT_ON_CLOSE);
-    initComponents();
     
-    dash.setLocationRelativeTo(null);
-    dash.setVisible(true);
+    PlotPanel ageDailyCasesPlot = new PlotPanel();
+    private void ageDailyCasesPlot(){
+        SwingWorker<PlotPanel, Void> pltWorker = new SwingWorker<>(){
+            @Override
+            protected PlotPanel doInBackground(){
+                Table t = confirmedCOVID.select("Case_Reported_Date", "Age_Group");
+                Table casesPerDayByAge = t.dropWhere(t.dateColumn(0).isInYear(2020))
+                        .xTabCounts("Case_Reported_Date", "Age_Group");
+                casesPerDayByAge.column(0).setName("Date");
+                casesPerDayByAge.removeColumns(casesPerDayByAge.column("total"), casesPerDayByAge.column("UNKNOWN"));
+                casesPerDayByAge.dropRows(casesPerDayByAge.rowCount() - 1);
+
+                DateColumn dates = casesPerDayByAge.dateColumn(0);
+
+                Axis yAxis = Axis.builder().range(0, 1250).title("Reported Cases").build();
+
+                Layout layout = Layout.builder("", "Day")
+                                .margin(defaultMargin)
+                                .yAxis(yAxis)
+                                .showLegend(true)
+                                .width(650).height(420)
+                                .build();
+
+                Trace[] traces = casesPerDayByAge.columns().stream().skip(1)
+                        .map(ageGroup -> {
+                            return ScatterTrace.builder(dates, ageGroup)
+                                    .mode(ScatterTrace.Mode.LINE)
+                                    .line(Line.builder().shape(Line.Shape.SPLINE)
+                                            .smoothing(1.1)
+                                            .build())
+                                    .name(ageGroup.name())
+                                    .showLegend(true)
+                                    .build();
+                        }).toArray(Trace[]::new);
+                return new PlotPanel(new Figure(layout, defaultConfig, traces), 655, 500);
+            }
+            
+            @Override
+            protected void done(){
+                try {
+                    ageDailyCasesPlot = get();
+                    newCasesDailyByAge.add(ageDailyCasesPlot);
+                    System.out.println("wagwan");
+                } catch (InterruptedException | ExecutionException ex) {
+                    Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+                }
+               
+            }
+            
+        };
+        pltWorker.execute();
     }
+    
+    
+    PlotPanel ageSexMortalityPlot = new PlotPanel();
+    private void ageSexMortalityPlot(){
+        
+        SwingWorker<PlotPanel,Void> pltWorker = new SwingWorker<>(){
+            @Override
+            protected PlotPanel doInBackground(){
+                Layout layout = Layout.builder("", "Age Group", "Deaths Per Thousand Cases")
+                        .showLegend(true)
+                        .margin(defaultMargin)
+                        .width(650).height(420)
+                        .barMode(Layout.BarMode.GROUP)
+                        .build();
 
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        if(e.getSource()==REGION_LIST){
-            System.out.println(REGION_LIST.getSelectedItem());
-        }
-        if(e.getSource()==updateButton){
-            Environment.mapAllDatasetsUpdate();
-            //this.initComponents();
-          
-        }
-        
-        if(e.getSource()==graphCases){
+                BarTrace[] traces = new BarTrace[2];
+
+                Selection[] mfSelect = {confirmedCOVID.stringColumn("Client_Gender").isEqualTo("MALE"),
+                    confirmedCOVID.stringColumn("Client_Gender").isEqualTo("FEMALE")};
+                String[] traceNames = {"Male Mortality", "Female Mortality"};
+
+                for (int i = 0; i < mfSelect.length; i++) {
+                    Table t = confirmedCOVID.where(mfSelect[i]).xTabCounts("Age_Group", "Outcome1").select("[labels]", "Fatal", "Resolved");
+                    t.column(0).setName("Age_Group");
+                    t = t.where(t.stringColumn(0).isNotIn("Total", "UNKNOWN")).sortOn("Age_Group");
+
+                    StringColumn age_groups = t.stringColumn(0);
+                    NumericColumn fatal = t.nCol("Fatal"), resolved = t.nCol("Resolved");
+                    NumericColumn mortality = (fatal.divide(resolved.add(fatal))).multiply(1000);
+                    traces[i] = BarTrace.builder(age_groups, mortality).orientation(BarTrace.Orientation.VERTICAL)
+                            .name(traceNames[i]).showLegend(true).build();
+                }
+
+                return new PlotPanel(new Figure(layout, defaultConfig, traces), 655, 500);
+            }
+            @Override
+            protected void done(){
+                try {
+                    ageSexMortalityPlot = get();
+                    ageSexMortality.add(ageSexMortalityPlot);
+                    System.out.println("wagwan");
+
+                    
+                } catch (InterruptedException | ExecutionException ex) {
+                    Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                
+            }
             
-        }
-        if(e.getSource()==graphDeaths){
             
-            
-        }
-        if(e.getSource()==phus){
-            
-        }
-        if(e.getSource()==phus1){
-            
-        }
-        if(e.getSource()==phus2){
-            
-        }
-        if(e.getSource()==phus3){
-            
-        }
-        if(e.getSource()==phus4){
-            
-        }
-        if(e.getSource()==phus5){
-            
-        }
-        
+        };
+        pltWorker.execute();
     }
+    
+    PlotPanel ageSexCaseProportionPlot = new PlotPanel();
+    private void ageSexCaseProportionPlot(){
+        SwingWorker<PlotPanel, Void> pltWorker = new SwingWorker<>(){
+            @Override
+            protected PlotPanel doInBackground(){
+                Table ageSexCaseProportion = confirmedCOVID.xTabTablePercents("Age_Group", "Client_Gender")
+                        .select("[labels]", "FEMALE", "MALE");
+                ageSexCaseProportion.column(0).setName("Age_Group");
+                ageSexCaseProportion = ageSexCaseProportion
+                        .dropRows(ageSexCaseProportion.rowCount() - 1,
+                                ageSexCaseProportion.rowCount() - 2);
+                
+                StringColumn ageGroup = ageSexCaseProportion.stringColumn(0);
+                
+                Layout layout = Layout.builder("", "Age Group", "Proportion of Cases")
+                        .showLegend(true)
+                        .margin(defaultMargin)
+                        .width(650).height(420)
+                        .barMode(Layout.BarMode.GROUP)
+                        .build();
+                
+                BarTrace[] traces = ageSexCaseProportion.columns().stream().skip(1)
+                                    .map(sex->{
+                                        NumericColumn n = (NumericColumn) sex;
+                                        return BarTrace.builder(ageGroup, n).orientation(BarTrace.Orientation.VERTICAL)
+                                                .name(n.name()).showLegend(true).build();
+                                    }).toArray(BarTrace[]::new);
+                
+                return new PlotPanel(new Figure(layout, defaultConfig, traces), 655, 500);
+            }
+            
+            @Override
+            protected void done(){
+                try {
+                    ageSexCaseProportionPlot = get();
+                    demographicProportions.add(ageSexCaseProportionPlot);
+                    System.out.println("wagwan");
+                } catch (InterruptedException | ExecutionException ex) {
+                    Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+                }
+               
+            }
+            
+        };
+        pltWorker.execute();
+    }
+    
+    PlotPanel ageSexDeathProportionPlot = new PlotPanel();
 
-   
+    private void ageSexDeathProportionPlot() {
+        SwingWorker<PlotPanel, Void> pltWorker = new SwingWorker<>() {
+            @Override
+            protected PlotPanel doInBackground() {
+                Table ageSexDeathProportion = confirmedCOVID.where(confirmedCOVID.stringColumn("Outcome1")
+                        .isEqualTo("Fatal")).xTabTablePercents("Age_Group", "Client_Gender")
+                        
+                        .select("[labels]", "FEMALE", "MALE");
+                ageSexDeathProportion.column(0).setName("Age_Group");
+                ageSexDeathProportion = ageSexDeathProportion
+                        .dropRows(ageSexDeathProportion.rowCount() - 1,
+                                ageSexDeathProportion.rowCount() - 2);
 
-   
+                StringColumn ageGroup = ageSexDeathProportion.stringColumn(0);
 
-    private void regionsSetup() {
+                Layout layout = Layout.builder("", "Age Group", "Proportion of Fatalities")
+                        .showLegend(true)
+                        .margin(defaultMargin)
+                        .width(650).height(420)
+                        .barMode(Layout.BarMode.GROUP)
+                        .build();
+
+                BarTrace[] traces = ageSexDeathProportion.columns().stream().skip(1)
+                        .map(sex -> {
+                            NumericColumn n = (NumericColumn) sex;
+                            return BarTrace.builder(ageGroup, n).orientation(BarTrace.Orientation.VERTICAL)
+                                    .name(n.name()).showLegend(true).build();
+                        }).toArray(BarTrace[]::new);
+                
+
+                return new PlotPanel(new Figure(layout, defaultConfig, traces), 655, 500);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    ageSexDeathProportionPlot = get();
+                    demographicDeathProportions.add(ageSexDeathProportionPlot);
+                    System.out.println("wagwan");
+                } catch (InterruptedException | ExecutionException ex) {
+                    Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+            }
+
+        };
+        pltWorker.execute();
+    }
+    
+    
+    JPanel regionalCpcPanel, recentCasesPanel, 
+            regionalMortalityPanel, regionalActiveCasesPanel;
+    private void regionalPerformanceSetup() {
         JPanel scrollPanel3 = new JPanel();
         scrollPanel3.setBackground(Color.WHITE);
-        scrollPanel3.setPreferredSize(new Dimension(900, 1500));
+        scrollPanel3.setPreferredSize(new Dimension(900, 1100));
         
-        scrollPanel3.setLayout(new GridLayout(2,1));
+        scrollPanel3.setLayout(new GridLayout(2,2));
         scrollPanel3.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(JG_RED, 2, true),
                 BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
         
-      
-        String[] phuList = DATASETS.get("Confirmed Covid Cases In Ontario")
-                .getTable()
-                .column("Reporting_PHU")
-                .unique()
-                .asList()
-                .toArray(new String[0]);
-        phus5 = new JComboBox(phuList);
+
+        regionalActiveCasesPanel = display_panel();
+        regionalCpcPanel = display_panel();
+        JLabel cpcTitle = new JLabel("CASES PER CAPITA");
+        cpcTitle.setFont(Cambria(1, 35));
+        regionalCpcPanel.add(cpcTitle, BorderLayout.NORTH);
+        regionalActivePerCapita();
+        
+        regionalMortalityPanel = display_panel();
+
+         
+          JLabel drTitle = new JLabel("FATALITY RATE");
+          drTitle.setFont(Cambria(1, 35));
+          regionalMortalityPanel.add(drTitle, BorderLayout.NORTH);
+          regionalMortalityPlot();
+         
+          regionalActiveCasesPanel = display_panel();
+          JLabel cacTitle = new JLabel("CURRENT ACTIVE CASES");
+          cacTitle.setFont(Cambria(1, 35));
+          regionalActiveCasesPanel.add(cacTitle, BorderLayout.NORTH);
+          regionalActiveCasesPlot();
+          
+          recentCasesPanel = display_panel();
+          JLabel recTitle = new JLabel("RECENT CASES");
+          recTitle.setFont(Cambria(1, 35));
+          recentCasesPanel.add(recTitle, BorderLayout.NORTH);
+          regionalRecentCasesPlot();
+         
+         
+        
+        scrollPanel3.add(regionalCpcPanel);
+        scrollPanel3.add(regionalActiveCasesPanel);
+        scrollPanel3.add(regionalMortalityPanel);
+        scrollPanel3.add(recentCasesPanel);
+        
+         
+         scrollPane3 = new JScrollPane(scrollPanel3);
+         scrollPane3.setAlignmentX(LEFT_ALIGNMENT);
+         scrollPane3.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+         scrollPane3.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+         scrollPane3.setPreferredSize(new Dimension(900, 900));
+           
+         
+         regionsPanel.setLayout(new BorderLayout());
+         regionsPanel.add(scrollPane3);
+    }
+    
+    PlotPanel regionalActiveCasesPlot = new PlotPanel();
+    private void regionalActiveCasesPlot(){
+        SwingWorker<PlotPanel, Void> pltWorker = new SwingWorker<>(){
+            @Override
+            protected PlotPanel doInBackground(){
+            Table t = tableFor("Status of Covid Cases by PHU").select("FILE_DATE","PHU_NUM", "ACTIVE_CASES");
+            
+            t = t.summarize("ACTIVE_CASES", sum).by("PHU_NUM","FILE_DATE");
+            DateColumn date = t.dateColumn("FILE_DATE");
+            Table activeCases = t.where(date.isEqualTo(date.get(t.rowCount() - 1)));
+            activeCases = activeCases.removeColumns(activeCases.column(1));
+            
+            StringColumn phuNames = activeCases.intColumn(0).asStringColumn();
+            for(int i=0; i<phuNames.size(); i++){
+                phuNames.set(i, Environment.CODEtoPHU.get(Integer.parseInt(phuNames.get(i))).split("[^a-zA-Z]")[0]);
+            }
+            activeCases = activeCases.addColumns(phuNames);
+            activeCases = activeCases.sortOn(1);
+            //System.out.println(activeCases.print());
+            BarTrace b = BarTrace.builder(activeCases.stringColumn(2), activeCases.nCol(1))
+                    .orientation(BarTrace.Orientation.VERTICAL).build();
+                
+                Layout layout = Layout.builder("","","Currently Active Cases")
+                        .margin(defaultMargin)
+                        .width(650).height(420)
+                        .build();
+                
+
+                return new PlotPanel(new Figure(layout, defaultConfig, b), 660, 460);
+            }
+            
+            
+            @Override
+            protected void done(){
+                try {
+                    System.out.println("wagwan");
+                    regionalActiveCasesPlot = get();
+                    regionalActiveCasesPanel.add(regionalActiveCasesPlot);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ExecutionException ex) {
+                    Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        };
+        
+        pltWorker.execute();
+    }
+    
+    PlotPanel regionalActivePerCapita = new PlotPanel();
+
+    private void regionalActivePerCapita() {
+        SwingWorker<PlotPanel, Void> pltWorker = new SwingWorker<>() {
+            @Override
+            protected PlotPanel doInBackground() {
+                Table t = tableFor("Status of Covid Cases by PHU").select("FILE_DATE","PHU_NUM", "ACTIVE_CASES");
+            
+            t = t.summarize("ACTIVE_CASES", sum).by("PHU_NUM","FILE_DATE");
+            DateColumn date = t.dateColumn("FILE_DATE");
+            Table activeCases = t.where(date.isEqualTo(date.get(t.rowCount() - 1)));
+           // System.out.println(activeCases.print());
+            
+            Table t2 = tableFor("PHU Populations");
+            
+            IntColumn popTablePop = t2.intColumn("POP");
+            IntColumn popTableCode = t2.intColumn("CODE");
+            
+            
+            DoubleColumn activeNum = activeCases.doubleColumn("Sum [ACTIVE_CASES]");
+            IntColumn codePHU = activeCases.intColumn("PHU_NUM");
+
+            
+            Double [] temp = codePHU.asList().stream().map(code->{
+                    
+                            
+                    double a = activeNum.get(codePHU.indexOf(code));
+                    double b = popTablePop.get(popTableCode.indexOf(code));
+                   
+                    return a/b;
+                    }).toArray(Double[]::new);
+            
+            
+            DoubleColumn perThousand = DoubleColumn.create("Active Per Thousand", temp).multiply(1000);
+            activeCases = activeCases.removeColumns(activeCases.column(1)).addColumns(perThousand);
+            
+            StringColumn phuNames = activeCases.intColumn(0).asStringColumn();
+            for(int i=0; i<phuNames.size(); i++){
+                phuNames.set(i, Environment.CODEtoPHU.get(Integer.parseInt(phuNames.get(i))).split("[^a-zA-Z]")[0]);
+            }
+            activeCases = activeCases.addColumns(phuNames);
+            activeCases = activeCases.sortOn(2);
+            BarTrace b = BarTrace.builder(activeCases.stringColumn(3), activeCases.doubleColumn(2))
+                    .orientation(BarTrace.Orientation.VERTICAL).build();
+
+                Layout layout = Layout.builder("", "", "Cases Per Thousand Residents")
+                        .margin(defaultMargin)
+                        .width(650).height(420)
+                        .build();
+
+                return new PlotPanel(new Figure(layout, defaultConfig, b), 660, 460);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    System.out.println("wagwan");
+                    regionalActivePerCapita = get();
+                    regionalCpcPanel.add(regionalActivePerCapita);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ExecutionException ex) {
+                    Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        };
+
+        pltWorker.execute();
+    }
+    
+    PlotPanel regionalMortalityPlot = new PlotPanel();
+    private void regionalMortalityPlot(){
+        SwingWorker<PlotPanel, Void> pltWorker = new SwingWorker<>() {
+            @Override
+            protected PlotPanel doInBackground() {
+                
+
+                Layout layout = Layout.builder("", "", "Deaths per 100 Cases")
+                        .margin(defaultMargin)
+                        .width(640).height(460)
+                        .build();
+                
+
+                Table phuOutcomes = confirmedCOVID.xTabRowPercents("Reporting_PHU", "Outcome1");
+                phuOutcomes = phuOutcomes.dropRows(phuOutcomes.rowCount()-1);
+                phuOutcomes.column(0).setName("Reporting PHU");
+               // System.out.println(phuOutcomes.print());
+                DoubleColumn mortality = phuOutcomes.doubleColumn(1).multiply(1000);
+                BarTrace trace = BarTrace.builder(phuOutcomes.stringColumn(0), mortality)
+                            .orientation(BarTrace.Orientation.VERTICAL).build();
+
+                return new PlotPanel(new Figure(layout, defaultConfig, trace), 650, 480);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    regionalMortalityPlot = get();
+                    regionalMortalityPanel.add(regionalMortalityPlot);
+                } catch (InterruptedException | ExecutionException ex) {
+                    Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            
+            
+            
+            }
+
+        };
+        pltWorker.execute();
+        
+    }
+    
+    PlotPanel regionalRecentCasesPlot = new PlotPanel();
+
+    private void regionalRecentCasesPlot() {
+        SwingWorker<PlotPanel, Void> pltWorker = new SwingWorker<>() {
+            @Override
+            protected PlotPanel doInBackground() {
+                
+                Table recently = confirmedCOVID.dropWhere(
+                        confirmedCOVID.dateColumn("Case_Reported_Date")
+                        .isBefore(confirmedCOVID.dateColumn("Case_Reported_Date")
+                                .get(confirmedCOVID.rowCount()-1).minusDays(28)));
+                                
+            
+            Table xtab = recently.xTabCounts("Case_Reported_Date", "Reporting_PHU");
+            xtab.column(0).setName("Date");
+           // System.out.println(xtab);
+            
+            xtab = xtab.removeColumns(xtab.column("total")).dropRows(xtab.rowCount()-1);
+            
+              //  System.out.println(xtab.print());
+                DateColumn date = xtab.dateColumn(0);
+                Trace[] traces = xtab.columns().stream().skip(1)
+                        .map(phu -> {
+                            return ScatterTrace.builder(date, phu)
+                                    .mode(ScatterTrace.Mode.LINE)
+                                    .line(Line.builder().shape(Line.Shape.SPLINE)
+                                            .smoothing(1.1)
+                                            .build())
+                                    .name(phu.name().split("[^a-zA-Z]")[0])
+                                    .showLegend(true)
+                                    .build();
+                        }).toArray(Trace[]::new);
+                Layout layout = Layout.builder("", "Day", "Cases Reported")
+                                .margin(defaultMargin)
+                                .showLegend(true)
+                                .width(640).height(450)
+                                .build();
+                return new PlotPanel(new Figure(layout, defaultConfig, traces), 650, 500);
+            }
+            @Override
+            protected void done() {
+                try {
+                    regionalRecentCasesPlot = get();
+                    recentCasesPanel.add(regionalRecentCasesPlot);
+                } catch (InterruptedException | ExecutionException ex) {
+                    Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+            }
+
+        };
+        pltWorker.execute();
+
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+        private void phuSetup() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        /*Panel scrollPanel3 = new JPanel();
+        scrollPanel3.setBackground(Color.WHITE);
+        scrollPanel3.setPreferredSize(new Dimension(900, 1500));
+        
+        scrollPanel3.setLayout(new GridLayout(2,2));
+        scrollPanel3.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(JG_RED, 2, true),
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
+        
+        
+        Map<String, Figure> plots = new HashMap<String, Figure>();
+        phus5 = new JComboBox(region_list);
         phus5.addActionListener(this);
         phus5.setPreferredSize(new Dimension(250,20));
        
@@ -745,10 +1030,83 @@ public class Dashboard implements ActionListener {
          
          regionsPanel.setLayout(new BorderLayout());
          regionsPanel.add(scrollPane3);
-         regionsPanel.add(selectPhu, BorderLayout.NORTH);
+         regionsPanel.add(selectPhu, BorderLayout.NORTH);*/
          
     }
 
   
     
+
+
+    
+    
+    
+    
+    
+    
+    
+    
+    
+   
+    public Dashboard(){
+    dash.setTitle("COVID DASHBOARD SESSION : "+DateAndTime.dataDate());
+    dash.setDefaultCloseOperation(EXIT_ON_CLOSE);
+    initComponents();
+
+    
+    dash.setLocationRelativeTo(null);
+    dash.pack();
+    dash.setVisible(true);
+    }
+
+    @Override
+    public void actionPerformed(ActionEvent e) {
+
+        if(e.getSource()==updateButton){
+            SwingWorker updateWorker = new SwingWorker(){
+                @Override
+                protected Void doInBackground(){
+                    updateButton.setText("UPDATING.");
+                    
+                    Environment.mapAllDatasetsUpdate();
+                    
+                    
+                    
+                   return null;
+                }
+                @Override 
+                protected void done(){
+                    
+                    Dashboard d = new Dashboard();
+                    //d.initComponents();
+                    
+                    dash.dispose();
+                    
+                    
+
+                    
+                    
+                    
+                    
+                }
+                
+                
+            };
+            updateWorker.execute();
+            
+            
+
+          
+        }
+        
+        
+        
+        
+    }
+
 }
+
+   
+
+   
+    

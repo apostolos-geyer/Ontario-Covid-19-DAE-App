@@ -7,10 +7,14 @@ package jginfosci.covid19.dae;
 import jginfosci.covid19.datasets.IO;
 import jginfosci.covid19.datasets.Dataset;
 import java.io.*;
+import java.time.LocalDate;
 import java.util.*;
 import javax.swing.JFrame;
 import static jginfosci.covid19.dae.Environment.tableFor;
+import static jginfosci.covid19.dae.visualEnv.GUIUtil.defaultConfig;
+import static jginfosci.covid19.dae.visualEnv.GUIUtil.defaultMargin;
 import jginfosci.covid19.dae.visualEnv.PlotPanel;
+import jginfosci.covid19.datasets.Dataset.DatasetBuilder;
 import tech.tablesaw.api.*;
 import tech.tablesaw.columns.numbers.NumberColumnFormatter;
 import tech.tablesaw.io.saw.*;
@@ -20,8 +24,17 @@ import tech.tablesaw.plotly.components.Layout;
 import static jginfosci.covid19.datasets.IO.DATASET_FOLDER;
 import tech.tablesaw.plotly.api.*;
 import static tech.tablesaw.aggregate.AggregateFunctions.*;
+import tech.tablesaw.columns.Column;
+import tech.tablesaw.plotly.components.Axis;
 import tech.tablesaw.plotly.components.Figure;
 import tech.tablesaw.plotly.components.Font;
+import tech.tablesaw.plotly.components.Layout.BarMode;
+import tech.tablesaw.plotly.components.Line;
+import tech.tablesaw.plotly.components.Marker;
+import tech.tablesaw.plotly.traces.BarTrace;
+import tech.tablesaw.plotly.traces.ScatterTrace;
+import tech.tablesaw.plotly.traces.Trace;
+import tech.tablesaw.selection.Selection;
 
 /**
  * demo version
@@ -122,131 +135,77 @@ public class EnvironmentDemo{
          * @throws IOException 
          */
         public static void main(String [] args) throws IOException{
-            //Environment.loadList();
-           /* Environment.mapDataset("Confirmed Covid Cases In Ontario", false);
-            Table confirmedCOVID = Environment.tableFor("Confirmed Covid Cases In Ontario")
-                           .sortOn("Case_Reported_Date"); 
+            /*
+            Dataset PHUpop = new Dataset.DatasetBuilder()
+                    .withName("PHU Populations")
+                    .withCsv("SavedDatasets/PHU Total Population/CSV/PHU Total Population.csv")
+                    .withTableFromCsv()
+                    .buildDataset();
+            IO.save(PHUpop);
             
-            Table t = confirmedCOVID.xTabCounts("Case_Reported_Date");
-            t.column(0).setName("date");
-            t = t.sortOn("date");
-            System.out.println(t.print());
-            
-            Layout figLayout = Layout.builder().width(690).height(400).build();
-            Figure f = TimeSeriesPlot.create("cases by day",t, "date", "Count");
-            
-            
-           
-            
-            
-            
-            
-            
-            
-            
-          
-                   
-                    
-                    
-              
-            
-            
-            
-            
-            
-            BufferedReader br = new BufferedReader(new InputStreamReader(System.in));*/
-            
-            //DATASET_LIST.forEach(System.out::println);
-            
-        /*Table xTab = DATASETS.get("Confirmed Covid Cases In Ontario").getTable().xTabCounts("Age_Group", "Outcome1");
-        System.out.println(xTab.print());
-        IntColumn fatal = xTab.intColumn("Fatal");
-        IntColumn total = xTab.intColumn("Total");
-        DoubleColumn deathRates =  fatal.divide(total);
-        deathRates.setPrintFormatter(NumberColumnFormatter.percent(4));
-        deathRates.setName("Mortaility%");
-        xTab.addColumns(deathRates);
-        xTab.column(0).setName("Age_Group");
-        xTab.removeColumns("total");
-        xTab.sortOn("Age_Group");
-        System.out.println(xTab.print());
-        Plot.show(VerticalBarPlot.create("Age Group x Mortaility%", xTab, "Age_Group", "Mortaility%"));
-        */
-
-        /*
-        String in, row, col;
-        String [] inArr;
-        Dataset d;
-        Table t;
-        do{
-        System.out.println("Enter EXIT to quit, otherwise type the name of the dataset you\n"
-        + "wish to analyze.");
-        DATASET_LIST.forEach(System.out::println);
-        in = br.readLine();
-        if(in.equals("EXIT")){ break;}
-        d = DATASETS.get(in);
-        do{
-        System.out.println("Options:\n"
-        + "SHOW X: show the first X rows of the dataset\n"
-        + "SORT X: sort on column X of the dataset\n"
-        + "CROSSTAB ROW COL: grouped occurences of values in columns ROW and COL of the dataset\n"
-        + "OCCURRENCES X: occurrences of values in column X \n"
-        + "PctCROSSTAB ROW COL: grouped occurences of values in columns ROW and COL of the dataset\n"
-        + "PctOCCURRENCES X: percent of column X that each value in the column represents\n"
-        + "SWITCH: switch datasets");
-        System.out.println("Columns:"+ d.getTable().columnNames()+"\n");
-        in = br.readLine();
-        if(in.equals("switch")){break;}
-        inArr = in.split(" ");
-        String choice = inArr[0];
-        switch(choice){
-        case "SHOW":
-        int firstX = Integer.parseInt(inArr[1]);
-        System.out.println(d.getTable().first(firstX));
-        break;
-        case "SORT":
-        String sortParam = inArr[1];
-        d.setTable(d.getTable().sortOn(sortParam));
-        System.out.println("Sorted on "+sortParam+"\n Preview:"
-        + d.getTable().first(10));
-        break;
-        case "CROSSTAB":
-        row=inArr[1]; col=inArr[2];
-        t = d.getTable().xTabCounts(row, col);
-        System.out.println(t.printAll());
-        break;
-        case "OCCURRENCES":
-        col=inArr[1];
-        t = d.getTable().xTabCounts(col);
-        t.column(0).setName(inArr[1]);
-        t = t.sortOn(inArr[1]);
-        System.out.println(t.printAll());
-        break;
-        case "PctCROSSTAB":
-        row = inArr[1];
-        col = inArr[2];
-        t = d.getTable().xTabTablePercents(row, col);
-        t.columnsOfType(ColumnType.DOUBLE)
-        .forEach(x -> ((NumberColumn) x).setPrintFormatter(NumberColumnFormatter.percent(4)));
-        System.out.println(t.printAll());
-        break;
-        case "PctOCCURRENCES":
-        col = inArr[1];
-        t = d.getTable().xTabPercents(col);
-        t = t.sortOn("Percents");
-        t.columnsOfType(ColumnType.DOUBLE)
-        .forEach(x -> ((NumberColumn) x).setPrintFormatter(NumberColumnFormatter.percent(4)));
-        System.out.println(t.printAll());
-        break;
-        }
-        }while(true);
-        }while(true);
             */
             
-    
+            Environment.loadList();
+            Environment.mapAllCurrentDatasets();
+            Table confirmedCOVID = tableFor("Confirmed Covid Cases In Ontario");
+                    confirmedCOVID = confirmedCOVID.sortOn("Case_Reported_Date");
+            Table recently = confirmedCOVID.dropWhere(
+                        confirmedCOVID.dateColumn("Case_Reported_Date")
+                        .isBefore(confirmedCOVID.dateColumn("Case_Reported_Date")
+                                .get(confirmedCOVID.rowCount()-1).minusDays(28)));
+                                
             
+            Table xtab = recently.xTabCounts("Case_Reported_Date", "Reporting_PHU");
+            xtab.column(0).setName("Date");
+            System.out.println(xtab);
             
+            xtab = xtab.dropRows(xtab.rowCount()-1);
             
+                System.out.println(xtab.print());
+                DateColumn date = xtab.dateColumn(0);
+                Trace[] traces = xtab.columns().stream().skip(1)
+                        .map(phu -> {
+                            return ScatterTrace.builder(date, phu)
+                                    .mode(ScatterTrace.Mode.LINE)
+                                    .line(Line.builder().shape(Line.Shape.SPLINE)
+                                            .smoothing(1.1)
+                                            .build())
+                                    .name(phu.name().split("[^a-zA-Z]")[0])
+                                    .showLegend(true)
+                                    .build();
+                        }).toArray(Trace[]::new);
+                Layout layout = Layout.builder("", "Day")
+                                .margin(defaultMargin)
+                                .showLegend(true)
+                                .width(650).height(420)
+                                .build();
+                
+                Plot.show(new Figure(layout, traces));
+                
+                
+           
+            
+              /*
+            
+              BarTrace[] traces = ageSexDeathProportion.columns().stream().skip(1)
+                        .map(sex -> {
+                            NumericColumn n = (NumericColumn) sex;
+                            return BarTrace.builder(ageGroup, n).orientation(BarTrace.Orientation.VERTICAL)
+                                    .name(n.name()).showLegend(true).build();
+                        }).toArray(BarTrace[]::new);
+            
+            Plot.show(new Figure(traces));
+            
+            //Plot.show(figure);
+/*
+            BarTrace[] traces = ageSexDeathProportion.columns().stream().skip(1)
+                        .map(sex -> {
+                            NumericColumn n = (NumericColumn) sex;
+                            return BarTrace.builder(ageGroup, n).orientation(BarTrace.Orientation.VERTICAL)
+                                    .name(n.name()).showLegend(true).build();
+                        }).toArray(BarTrace[]::new);
+            
+            */
 
         }
 

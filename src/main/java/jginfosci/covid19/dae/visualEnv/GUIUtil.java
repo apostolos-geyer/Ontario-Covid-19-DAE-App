@@ -20,12 +20,19 @@ import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 import javax.swing.border.Border;
 import jginfosci.covid19.dae.DateAndTime;
+import tech.tablesaw.plotly.components.Config;
+import tech.tablesaw.plotly.components.Margin;
 
 /**
  *
  * @author paulgeyer
  */
 public abstract class GUIUtil {
+    
+    public static final Margin defaultMargin = Margin.builder().top(0).bottom(60).left(50).right(5).build();
+    public static final Config defaultConfig = Config.builder().displayModeBar(false).build();
+    
+    
     
     static final String JG_LOGO_PATH = "visuals/logo.png";
     

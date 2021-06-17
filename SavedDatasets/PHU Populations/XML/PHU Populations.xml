@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<java version="16.0.1" class="java.beans.XMLDecoder">
+ <object class="jginfosci.covid19.datasets.Dataset">
+  <void property="csvPath">
+   <string>SavedDatasets/PHU Populations/CSV/PHU Populations.csv</string>
+  </void>
+  <void property="lastUpdated">
+   <string>2021-06-16 20:26</string>
+  </void>
+  <void property="name">
+   <string>PHU Populations</string>
+  </void>
+  <void property="sawPath">
+   <string>SavedDatasets/PHU Populations/SAW/PHUPopulations.saw</string>
+  </void>
+ </object>
+</java>
