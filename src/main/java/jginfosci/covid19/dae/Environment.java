@@ -62,7 +62,8 @@ public class Environment {
      */
     public static final HashMap<String, Dataset> DATASETS = new HashMap<String, Dataset>();
     
-    
+    public static final HashMap<String, Integer> PHUtoCODE = new HashMap<String, Integer>();
+    public static final HashMap<Integer, String> CODEtoPHU = new HashMap<Integer, String>();
     /**
      * Load the {@link DATASET_LIST}.
      * <p>
@@ -96,9 +97,15 @@ public class Environment {
      * @since June 1, 2021
      */
     public static void mapAllCurrentDatasets(){
-        DATASET_LIST
-                .forEach(s -> DATASETS.put(s, IO.load(s, false)));
-                        
+                DATASET_LIST
+                .forEach(s -> DATASETS.put(s, IO.load(s, false)));  
+                tableFor("Confirmed Covid Cases In Ontario").forEach(row->{
+                PHUtoCODE.putIfAbsent(
+                    row.getString("Reporting_PHU"), row.getInt("Reporting_PHU_ID"));
+                CODEtoPHU.putIfAbsent(row.getInt("Reporting_PHU_ID"),row.getString("Reporting_PHU"));
+                
+                });
+                
     }
     
     /**
@@ -115,11 +122,22 @@ public class Environment {
                 new Thread(new Runnable() {
                 @Override
                 public void run(){
-                DATASET_LIST.stream()
+                DATASET_LIST
                 .forEach(s -> DATASETS.put(s, IO.load(s, true))); 
+                tableFor("Confirmed Covid Cases In Ontario").forEach(row->{
+                PHUtoCODE.putIfAbsent(
+                    row.getString("Reporting_PHU"), row.getInt("Reporting_PHU_ID"));
+                CODEtoPHU.putIfAbsent(row.getInt("Reporting_PHU_ID"),row.getString("Reporting_PHU"));
+                
+                });
+                
                 }
                 }).start();
     }
+    
+    
+    
+    
     
     public static Table tableFor(String datasetName){
         return DATASETS.get(datasetName).getTable();

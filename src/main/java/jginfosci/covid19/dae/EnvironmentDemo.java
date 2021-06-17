@@ -7,12 +7,14 @@ package jginfosci.covid19.dae;
 import jginfosci.covid19.datasets.IO;
 import jginfosci.covid19.datasets.Dataset;
 import java.io.*;
+import java.time.LocalDate;
 import java.util.*;
 import javax.swing.JFrame;
 import static jginfosci.covid19.dae.Environment.tableFor;
 import static jginfosci.covid19.dae.visualEnv.GUIUtil.defaultConfig;
 import static jginfosci.covid19.dae.visualEnv.GUIUtil.defaultMargin;
 import jginfosci.covid19.dae.visualEnv.PlotPanel;
+import jginfosci.covid19.datasets.Dataset.DatasetBuilder;
 import tech.tablesaw.api.*;
 import tech.tablesaw.columns.numbers.NumberColumnFormatter;
 import tech.tablesaw.io.saw.*;
@@ -133,25 +135,77 @@ public class EnvironmentDemo{
          * @throws IOException 
          */
         public static void main(String [] args) throws IOException{
+            /*
+            Dataset PHUpop = new Dataset.DatasetBuilder()
+                    .withName("PHU Populations")
+                    .withCsv("SavedDatasets/PHU Total Population/CSV/PHU Total Population.csv")
+                    .withTableFromCsv()
+                    .buildDataset();
+            IO.save(PHUpop);
+            
+            */
+            
             Environment.loadList();
-            Environment.mapDataset("Confirmed Covid Cases In Ontario", false);
-            Table confirmedCOVID = Environment.tableFor("Confirmed Covid Cases In Ontario").replaceColumn("Age_Group",Environment.tableFor("Confirmed Covid Cases In Ontario").stringColumn("Age_Group").replaceAll("<20", "0-19").setName("Age_Group"))
-                    .sortOn("Case_Reported_Date"); 
+            Environment.mapAllCurrentDatasets();
+            Table confirmedCOVID = tableFor("Confirmed Covid Cases In Ontario");
+                    confirmedCOVID = confirmedCOVID.sortOn("Case_Reported_Date");
+            Table recently = confirmedCOVID.dropWhere(
+                        confirmedCOVID.dateColumn("Case_Reported_Date")
+                        .isBefore(confirmedCOVID.dateColumn("Case_Reported_Date")
+                                .get(confirmedCOVID.rowCount()-1).minusDays(28)));
+                                
             
+            Table xtab = recently.xTabCounts("Case_Reported_Date", "Reporting_PHU");
+            xtab.column(0).setName("Date");
+            System.out.println(xtab);
             
-            Table ageSexCaseProportion = confirmedCOVID.xTabTablePercents("Age_Group","Client_Gender")
-                                         .select("[labels]", "FEMALE", "MALE");
-            ageSexCaseProportion.column(0).setName("Age_Group");
-            ageSexCaseProportion=ageSexCaseProportion
-                                 .dropRows(ageSexCaseProportion.rowCount()-1,
-                                           ageSexCaseProportion.rowCount()-2);
+            xtab = xtab.dropRows(xtab.rowCount()-1);
             
+                System.out.println(xtab.print());
+                DateColumn date = xtab.dateColumn(0);
+                Trace[] traces = xtab.columns().stream().skip(1)
+                        .map(phu -> {
+                            return ScatterTrace.builder(date, phu)
+                                    .mode(ScatterTrace.Mode.LINE)
+                                    .line(Line.builder().shape(Line.Shape.SPLINE)
+                                            .smoothing(1.1)
+                                            .build())
+                                    .name(phu.name().split("[^a-zA-Z]")[0])
+                                    .showLegend(true)
+                                    .build();
+                        }).toArray(Trace[]::new);
+                Layout layout = Layout.builder("", "Day")
+                                .margin(defaultMargin)
+                                .showLegend(true)
+                                .width(650).height(420)
+                                .build();
+                
+                Plot.show(new Figure(layout, traces));
+                
+                
+           
             
+              /*
             
-    
+              BarTrace[] traces = ageSexDeathProportion.columns().stream().skip(1)
+                        .map(sex -> {
+                            NumericColumn n = (NumericColumn) sex;
+                            return BarTrace.builder(ageGroup, n).orientation(BarTrace.Orientation.VERTICAL)
+                                    .name(n.name()).showLegend(true).build();
+                        }).toArray(BarTrace[]::new);
             
+            Plot.show(new Figure(traces));
             
+            //Plot.show(figure);
+/*
+            BarTrace[] traces = ageSexDeathProportion.columns().stream().skip(1)
+                        .map(sex -> {
+                            NumericColumn n = (NumericColumn) sex;
+                            return BarTrace.builder(ageGroup, n).orientation(BarTrace.Orientation.VERTICAL)
+                                    .name(n.name()).showLegend(true).build();
+                        }).toArray(BarTrace[]::new);
             
+            */
 
         }
 

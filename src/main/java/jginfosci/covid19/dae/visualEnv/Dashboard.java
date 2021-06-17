@@ -46,6 +46,8 @@ public class Dashboard implements ActionListener {
 
    LocalDate mostRecentEntry = (confirmedCOVID.dateColumn("Case_Reported_Date")
                                 .get(confirmedCOVID.rowCount()-1));
+   
+   
     
    private final JFrame dash = basic_frame();
    private JTabbedPane pages;
@@ -69,9 +71,7 @@ public class Dashboard implements ActionListener {
            demographicProportions = display_panel(),
            demographicDeathProportions = display_panel(),
            
-           regionsPanel = parent_panel(),
-           cpcAndDeathRatePanel = display_panel(),
-           currentActiveCasesPanel = display_panel();
+           regionsPanel = parent_panel();
            
    
    private JScrollPane scrollPane,scrollPane2,scrollPane3,scrollPane4;
@@ -79,7 +79,7 @@ public class Dashboard implements ActionListener {
    String[] region_list = getRegionList().toArray(new String[0]);
    private final JButton PHU = new JButton();
    
-   private JComboBox phus, phus1,phus2,phus3,phus4,phus5;
+   private JComboBox phus5 = new JComboBox(region_list);
    private JMenuBar menuBar;
    private final JButton updateButton = new JButton("UPDATE"),downloadButton = new JButton("DOWNLOAD");
     
@@ -103,7 +103,8 @@ public class Dashboard implements ActionListener {
         
         snapshotSetup();
         demographicsSetup();
-        regionsSetup();
+        regionalPerformanceSetup();
+        //phuSetup();
         
         
         displayPanel.setLayout(new BorderLayout());
@@ -674,13 +675,297 @@ public class Dashboard implements ActionListener {
     }
     
     
-    
-    private void regionsSetup() {
+    JPanel regionalCpcPanel, recentCasesPanel, 
+            regionalMortalityPanel, regionalActiveCasesPanel;
+    private void regionalPerformanceSetup() {
         JPanel scrollPanel3 = new JPanel();
+        scrollPanel3.setBackground(Color.WHITE);
+        scrollPanel3.setPreferredSize(new Dimension(900, 1100));
+        
+        scrollPanel3.setLayout(new GridLayout(2,2));
+        scrollPanel3.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(JG_RED, 2, true),
+                BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
+        
+
+        regionalActiveCasesPanel = display_panel();
+        regionalCpcPanel = display_panel();
+        JLabel cpcTitle = new JLabel("CASES PER CAPITA");
+        cpcTitle.setFont(Cambria(1, 35));
+        regionalCpcPanel.add(cpcTitle, BorderLayout.NORTH);
+        regionalActivePerCapita();
+        
+        regionalMortalityPanel = display_panel();
+
+         
+          JLabel drTitle = new JLabel("FATALITY RATE");
+          drTitle.setFont(Cambria(1, 35));
+          regionalMortalityPanel.add(drTitle, BorderLayout.NORTH);
+          regionalMortalityPlot();
+         
+          regionalActiveCasesPanel = display_panel();
+          JLabel cacTitle = new JLabel("CURRENT ACTIVE CASES");
+          cacTitle.setFont(Cambria(1, 35));
+          regionalActiveCasesPanel.add(cacTitle, BorderLayout.NORTH);
+          regionalActiveCasesPlot();
+          
+          recentCasesPanel = display_panel();
+          JLabel recTitle = new JLabel("RECENT CASES");
+          recTitle.setFont(Cambria(1, 35));
+          recentCasesPanel.add(recTitle, BorderLayout.NORTH);
+          regionalRecentCasesPlot();
+         
+         
+        
+        scrollPanel3.add(regionalCpcPanel);
+        scrollPanel3.add(regionalActiveCasesPanel);
+        scrollPanel3.add(regionalMortalityPanel);
+        scrollPanel3.add(recentCasesPanel);
+        
+         
+         scrollPane3 = new JScrollPane(scrollPanel3);
+         scrollPane3.setAlignmentX(LEFT_ALIGNMENT);
+         scrollPane3.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
+         scrollPane3.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+         scrollPane3.setPreferredSize(new Dimension(900, 900));
+           
+         
+         regionsPanel.setLayout(new BorderLayout());
+         regionsPanel.add(scrollPane3);
+    }
+    
+    PlotPanel regionalActiveCasesPlot = new PlotPanel();
+    private void regionalActiveCasesPlot(){
+        SwingWorker<PlotPanel, Void> pltWorker = new SwingWorker<>(){
+            @Override
+            protected PlotPanel doInBackground(){
+            Table t = tableFor("Status of Covid Cases by PHU").select("FILE_DATE","PHU_NUM", "ACTIVE_CASES");
+            
+            t = t.summarize("ACTIVE_CASES", sum).by("PHU_NUM","FILE_DATE");
+            DateColumn date = t.dateColumn("FILE_DATE");
+            Table activeCases = t.where(date.isEqualTo(date.get(t.rowCount() - 1)));
+            activeCases = activeCases.removeColumns(activeCases.column(1));
+            
+            StringColumn phuNames = activeCases.intColumn(0).asStringColumn();
+            for(int i=0; i<phuNames.size(); i++){
+                phuNames.set(i, Environment.CODEtoPHU.get(Integer.parseInt(phuNames.get(i))).split("[^a-zA-Z]")[0]);
+            }
+            activeCases = activeCases.addColumns(phuNames);
+            activeCases = activeCases.sortOn(1);
+            System.out.println(activeCases.print());
+            BarTrace b = BarTrace.builder(activeCases.stringColumn(2), activeCases.nCol(1))
+                    .orientation(BarTrace.Orientation.VERTICAL).build();
+                
+                Layout layout = Layout.builder("","","Currently Active Cases")
+                        .margin(defaultMargin)
+                        .width(650).height(420)
+                        .build();
+                
+
+                return new PlotPanel(new Figure(layout, defaultConfig, b), 660, 460);
+            }
+            
+            
+            @Override
+            protected void done(){
+                try {
+                    System.out.println("wagwan");
+                    regionalActiveCasesPlot = get();
+                    regionalActiveCasesPanel.add(regionalActiveCasesPlot);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ExecutionException ex) {
+                    Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        };
+        
+        pltWorker.execute();
+    }
+    
+    PlotPanel regionalActivePerCapita = new PlotPanel();
+
+    private void regionalActivePerCapita() {
+        SwingWorker<PlotPanel, Void> pltWorker = new SwingWorker<>() {
+            @Override
+            protected PlotPanel doInBackground() {
+                Table t = tableFor("Status of Covid Cases by PHU").select("FILE_DATE","PHU_NUM", "ACTIVE_CASES");
+            
+            t = t.summarize("ACTIVE_CASES", sum).by("PHU_NUM","FILE_DATE");
+            DateColumn date = t.dateColumn("FILE_DATE");
+            Table activeCases = t.where(date.isEqualTo(date.get(t.rowCount() - 1)));
+            System.out.println(activeCases.print());
+            
+            Table t2 = tableFor("PHU Populations");
+            
+            IntColumn popTablePop = t2.intColumn("POP");
+            IntColumn popTableCode = t2.intColumn("CODE");
+            
+            
+            DoubleColumn activeNum = activeCases.doubleColumn("Sum [ACTIVE_CASES]");
+            IntColumn codePHU = activeCases.intColumn("PHU_NUM");
+
+            
+            Double [] temp = codePHU.asList().stream().map(code->{
+                    
+                            
+                    double a = activeNum.get(codePHU.indexOf(code));
+                    double b = popTablePop.get(popTableCode.indexOf(code));
+                   
+                    return a/b;
+                    }).toArray(Double[]::new);
+            
+            
+            DoubleColumn perThousand = DoubleColumn.create("Active Per Thousand", temp).multiply(1000);
+            activeCases = activeCases.removeColumns(activeCases.column(1)).addColumns(perThousand);
+            
+            StringColumn phuNames = activeCases.intColumn(0).asStringColumn();
+            for(int i=0; i<phuNames.size(); i++){
+                phuNames.set(i, Environment.CODEtoPHU.get(Integer.parseInt(phuNames.get(i))).split("[^a-zA-Z]")[0]);
+            }
+            activeCases = activeCases.addColumns(phuNames);
+            activeCases = activeCases.sortOn(2);
+            BarTrace b = BarTrace.builder(activeCases.stringColumn(3), activeCases.doubleColumn(2))
+                    .orientation(BarTrace.Orientation.VERTICAL).build();
+
+                Layout layout = Layout.builder("", "", "Cases Per Thousand Residents")
+                        .margin(defaultMargin)
+                        .width(650).height(420)
+                        .build();
+
+                return new PlotPanel(new Figure(layout, defaultConfig, b), 660, 460);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    System.out.println("wagwan");
+                    regionalActivePerCapita = get();
+                    regionalCpcPanel.add(regionalActivePerCapita);
+                } catch (InterruptedException ex) {
+                    Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+                } catch (ExecutionException ex) {
+                    Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+        };
+
+        pltWorker.execute();
+    }
+    
+    PlotPanel regionalMortalityPlot = new PlotPanel();
+    private void regionalMortalityPlot(){
+        SwingWorker<PlotPanel, Void> pltWorker = new SwingWorker<>() {
+            @Override
+            protected PlotPanel doInBackground() {
+                
+
+                Layout layout = Layout.builder("", "", "Deaths per 100 Cases")
+                        .margin(defaultMargin)
+                        .width(650).height(420)
+                        .build();
+                
+
+                Table phuOutcomes = confirmedCOVID.xTabRowPercents("Reporting_PHU", "Outcome1");
+                phuOutcomes.column(0).setName("Reporting PHU");
+                System.out.println(phuOutcomes.print());
+                DoubleColumn mortality = phuOutcomes.doubleColumn(1).multiply(1000);
+                BarTrace trace = BarTrace.builder(phuOutcomes.stringColumn(0), mortality)
+                            .orientation(BarTrace.Orientation.VERTICAL).build();
+
+                return new PlotPanel(new Figure(layout, defaultConfig, trace), 650, 500);
+            }
+
+            @Override
+            protected void done() {
+                try {
+                    regionalMortalityPlot = get();
+                    regionalMortalityPanel.add(regionalMortalityPlot);
+                } catch (InterruptedException | ExecutionException ex) {
+                    Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            
+            
+            
+            }
+
+        };
+        pltWorker.execute();
+        
+    }
+    
+    PlotPanel regionalRecentCasesPlot = new PlotPanel();
+
+    private void regionalRecentCasesPlot() {
+        SwingWorker<PlotPanel, Void> pltWorker = new SwingWorker<>() {
+            @Override
+            protected PlotPanel doInBackground() {
+                
+                Table recently = confirmedCOVID.dropWhere(
+                        confirmedCOVID.dateColumn("Case_Reported_Date")
+                        .isBefore(confirmedCOVID.dateColumn("Case_Reported_Date")
+                                .get(confirmedCOVID.rowCount()-1).minusDays(28)));
+                                
+            
+            Table xtab = recently.xTabCounts("Case_Reported_Date", "Reporting_PHU");
+            xtab.column(0).setName("Date");
+            System.out.println(xtab);
+            
+            xtab = xtab.removeColumns(xtab.column("total")).dropRows(xtab.rowCount()-1);
+            
+                System.out.println(xtab.print());
+                DateColumn date = xtab.dateColumn(0);
+                Trace[] traces = xtab.columns().stream().skip(1)
+                        .map(phu -> {
+                            return ScatterTrace.builder(date, phu)
+                                    .mode(ScatterTrace.Mode.LINE)
+                                    .line(Line.builder().shape(Line.Shape.SPLINE)
+                                            .smoothing(1.1)
+                                            .build())
+                                    .name(phu.name().split("[^a-zA-Z]")[0])
+                                    .showLegend(true)
+                                    .build();
+                        }).toArray(Trace[]::new);
+                Layout layout = Layout.builder("", "Day", "Cases Reported")
+                                .margin(defaultMargin)
+                                .showLegend(true)
+                                .width(640).height(450)
+                                .build();
+                return new PlotPanel(new Figure(layout, defaultConfig, traces), 650, 500);
+            }
+            @Override
+            protected void done() {
+                try {
+                    regionalRecentCasesPlot = get();
+                    recentCasesPanel.add(regionalRecentCasesPlot);
+                } catch (InterruptedException | ExecutionException ex) {
+                    Logger.getLogger(Dashboard.class.getName()).log(Level.SEVERE, null, ex);
+                }
+
+            }
+
+        };
+        pltWorker.execute();
+
+    }
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+        private void phuSetup() {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        /*Panel scrollPanel3 = new JPanel();
         scrollPanel3.setBackground(Color.WHITE);
         scrollPanel3.setPreferredSize(new Dimension(900, 1500));
         
-        scrollPanel3.setLayout(new GridLayout(2,1));
+        scrollPanel3.setLayout(new GridLayout(2,2));
         scrollPanel3.setBorder(BorderFactory.createCompoundBorder(BorderFactory.createLineBorder(JG_RED, 2, true),
                 BorderFactory.createBevelBorder(BevelBorder.LOWERED)));
         
@@ -751,7 +1036,7 @@ public class Dashboard implements ActionListener {
          
          regionsPanel.setLayout(new BorderLayout());
          regionsPanel.add(scrollPane3);
-         regionsPanel.add(selectPhu, BorderLayout.NORTH);
+         regionsPanel.add(selectPhu, BorderLayout.NORTH);*/
          
     }
 
@@ -791,33 +1076,12 @@ public class Dashboard implements ActionListener {
           
         }
         
-        if(e.getSource()==graphCases){
-            
-        }
-        if(e.getSource()==graphDeaths){
-            
-            
-        }
-        if(e.getSource()==phus){
-            
-        }
-        if(e.getSource()==phus1){
-            
-        }
-        if(e.getSource()==phus2){
-            
-        }
-        if(e.getSource()==phus3){
-            
-        }
-        if(e.getSource()==phus4){
-            
-        }
         if(e.getSource()==phus5){
             
         }
         
     }
+
 }
 
    
