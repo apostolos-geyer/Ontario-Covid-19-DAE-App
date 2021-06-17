@@ -161,7 +161,7 @@ public class Environment {
         /**
          * Main method
          * @param args  The command line arguments.<br>
-         * 
+         *              NOT YET IMPLETMENTED PROPERLY (I don't think?)
          *              When running from command line, the application can be 
          *              launched with the following arguments, which will configure
          *              how the application runs as follows:<p>
@@ -231,7 +231,7 @@ public class Environment {
                             }
                         });
                         
-                        return;
+                        break;
                         
                     case("update"):
                         loadList();
