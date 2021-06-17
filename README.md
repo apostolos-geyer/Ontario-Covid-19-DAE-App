@@ -24,7 +24,7 @@ Since you're on GitHub already, I'll assume at the minimum your JAVA_HOME is set
 <code>mvn clean install</code>
 
 ### Run the project: 
-<code>mvn exec:java -Dexec.mainClass=jginfosci.covid19.dae.Environment -Dexec.args=“basic”</code>
+<code>mvn exec:java -Dexec.mainClass=jginfosci.covid19.dae.Environment -Dexec.args=“basic”</code>  
 Argument Options:  
 1. basic - loads normally with local datasets, you can still update while running
 2. update - updates and then loads, very slow.
@@ -33,21 +33,23 @@ Argument Options:
 any time you do an update the terminal will say some stuff that makes it look like it's not working.. it is.
 
 For me this looks like: 
-1. <code>(base) superuser@Apostoloss-MacBook-Pro ~ % /usr/libexec/java_home</code>
+1. <code>(base) superuser@Apostoloss-MacBook-Pro ~ % /usr/libexec/java_home</code>  
 /Library/Java/JavaVirtualMachines/jdk-16.0.1.jdk/Contents/Home
 
 2. <code>(base) superuser@Apostoloss-MacBook-Pro ~ % export PATH=/Users/superuser/apache-maven-3.8.1/bin:$PATH</code>
 
 OR
 
-2.5 <code>(base) superuser@Apostoloss-MacBook-Pro ~ % vim ~/.zshrc</code>
-and add to file
-<code>export PATH=/Users/superuser/apache-maven-3.8.1/bin:$PATH</code>
+2.5 <code>(base) superuser@Apostoloss-MacBook-Pro ~ % vim ~/.zshrc</code>  
+and add to file:  
+<code>export PATH=/Users/superuser/apache-maven-3.8.1/bin:$PATH</code>  
 
-3. <code>(base) superuser@Apostoloss-MacBook-Pro ~ %cd /Users/superuser/NetBeansProjects/Ontario-Covid-19-DAE-App</code>
-4. <code>(base) superuser@Apostoloss-MacBook-Pro Ontario-Covid-19-DAE-App % mvn clean install<code>
-  a bunch of output from maven
-5. <code>(base) superuser@Apostoloss-MacBook-Pro Ontario-Covid-19-DAE-App % mvn exec:java -Dexec.mainClass=jginfosci.covid19.dae.Environment -Dexec.args=“basic”</code>
+3. <code>(base) superuser@Apostoloss-MacBook-Pro ~ %cd /Users/superuser/NetBeansProjects/Ontario-Covid-19-DAE-App</code>  
+4. <code>(base) superuser@Apostoloss-MacBook-Pro Ontario-Covid-19-DAE-App % mvn clean install</code>  
+  ....a bunch of output from maven  
+5. <code>(base) superuser@Apostoloss-MacBook-Pro Ontario-Covid-19-DAE-App % mvn exec:java -Dexec.mainClass=jginfosci.covid19.dae.Environment -Dexec.args=“basic”</code>   
+
+a bunch more output and then the program runs
 
 
 
