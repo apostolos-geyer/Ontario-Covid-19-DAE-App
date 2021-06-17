@@ -49,7 +49,7 @@ public class Dashboard implements ActionListener {
    
    
     
-   private final JFrame dash = basic_frame();
+   private JFrame dash = basic_frame();
    private JTabbedPane pages;
    private JPanel 
            parentPanel = parent_panel(),
@@ -61,9 +61,6 @@ public class Dashboard implements ActionListener {
            casePanel = new JPanel(),
            totalCasesPanel = new JPanel(),
    
-           casesSetupPanel = parent_panel(),
-           graphSelectorPanel = display_panel(),
-           casesGraphPanel = display_panel(),
            
            demographicsPanel = parent_panel(),
            ageSexMortality = display_panel(),
@@ -74,14 +71,10 @@ public class Dashboard implements ActionListener {
            regionsPanel = parent_panel();
            
    
-   private JScrollPane scrollPane,scrollPane2,scrollPane3,scrollPane4;
-   private JCheckBox graphCases,graphDeaths;        
-   String[] region_list = getRegionList().toArray(new String[0]);
-   private final JButton PHU = new JButton();
-   
-   private JComboBox phus5 = new JComboBox(region_list);
-   private JMenuBar menuBar;
-   private final JButton updateButton = new JButton("UPDATE"),downloadButton = new JButton("DOWNLOAD");
+   private JScrollPane scrollPane2,scrollPane3;
+     
+   //String[] region_list = getRegionList().toArray(new String[0]);
+   private final JButton updateButton = new JButton("UPDATE");
     
     
     void initComponents(){
@@ -124,7 +117,7 @@ public class Dashboard implements ActionListener {
 
         parentPanel.add(header_panel(), BorderLayout.NORTH);
         parentPanel.add(displayPanel, BorderLayout.CENTER);
-        dash.pack();
+        
         
     }
     
@@ -751,7 +744,7 @@ public class Dashboard implements ActionListener {
             }
             activeCases = activeCases.addColumns(phuNames);
             activeCases = activeCases.sortOn(1);
-            System.out.println(activeCases.print());
+            //System.out.println(activeCases.print());
             BarTrace b = BarTrace.builder(activeCases.stringColumn(2), activeCases.nCol(1))
                     .orientation(BarTrace.Orientation.VERTICAL).build();
                 
@@ -793,7 +786,7 @@ public class Dashboard implements ActionListener {
             t = t.summarize("ACTIVE_CASES", sum).by("PHU_NUM","FILE_DATE");
             DateColumn date = t.dateColumn("FILE_DATE");
             Table activeCases = t.where(date.isEqualTo(date.get(t.rowCount() - 1)));
-            System.out.println(activeCases.print());
+           // System.out.println(activeCases.print());
             
             Table t2 = tableFor("PHU Populations");
             
@@ -861,18 +854,19 @@ public class Dashboard implements ActionListener {
 
                 Layout layout = Layout.builder("", "", "Deaths per 100 Cases")
                         .margin(defaultMargin)
-                        .width(650).height(420)
+                        .width(640).height(460)
                         .build();
                 
 
                 Table phuOutcomes = confirmedCOVID.xTabRowPercents("Reporting_PHU", "Outcome1");
+                phuOutcomes = phuOutcomes.dropRows(phuOutcomes.rowCount()-1);
                 phuOutcomes.column(0).setName("Reporting PHU");
-                System.out.println(phuOutcomes.print());
+               // System.out.println(phuOutcomes.print());
                 DoubleColumn mortality = phuOutcomes.doubleColumn(1).multiply(1000);
                 BarTrace trace = BarTrace.builder(phuOutcomes.stringColumn(0), mortality)
                             .orientation(BarTrace.Orientation.VERTICAL).build();
 
-                return new PlotPanel(new Figure(layout, defaultConfig, trace), 650, 500);
+                return new PlotPanel(new Figure(layout, defaultConfig, trace), 650, 480);
             }
 
             @Override
@@ -908,11 +902,11 @@ public class Dashboard implements ActionListener {
             
             Table xtab = recently.xTabCounts("Case_Reported_Date", "Reporting_PHU");
             xtab.column(0).setName("Date");
-            System.out.println(xtab);
+           // System.out.println(xtab);
             
             xtab = xtab.removeColumns(xtab.column("total")).dropRows(xtab.rowCount()-1);
             
-                System.out.println(xtab.print());
+              //  System.out.println(xtab.print());
                 DateColumn date = xtab.dateColumn(0);
                 Trace[] traces = xtab.columns().stream().skip(1)
                         .map(phu -> {
@@ -1061,6 +1055,7 @@ public class Dashboard implements ActionListener {
 
     
     dash.setLocationRelativeTo(null);
+    dash.pack();
     dash.setVisible(true);
     }
 
@@ -1068,17 +1063,44 @@ public class Dashboard implements ActionListener {
     public void actionPerformed(ActionEvent e) {
 
         if(e.getSource()==updateButton){
-            dash.getContentPane().removeAll();
-            dash.repaint();
-            Environment.mapAllDatasetsUpdate();
-            initComponents();
-            dash.revalidate();
+            SwingWorker updateWorker = new SwingWorker(){
+                @Override
+                protected Void doInBackground(){
+                    updateButton.setText("UPDATING.");
+                    
+                    Environment.mapAllDatasetsUpdate();
+                    
+                    
+                    
+                   return null;
+                }
+                @Override 
+                protected void done(){
+                    
+                    Dashboard d = new Dashboard();
+                    //d.initComponents();
+                    
+                    dash.dispose();
+                    
+                    
+
+                    
+                    
+                    
+                    
+                }
+                
+                
+            };
+            updateWorker.execute();
+            
+            
+
           
         }
         
-        if(e.getSource()==phus5){
-            
-        }
+        
+        
         
     }
 
