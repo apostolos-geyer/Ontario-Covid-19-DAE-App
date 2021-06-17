@@ -161,7 +161,7 @@ public class Environment {
         /**
          * Main method
          * @param args  The command line arguments.<br>
-         *              NOT YET IMPLETMENTED PROPERLY (I don't think?)
+         * 
          *              When running from command line, the application can be 
          *              launched with the following arguments, which will configure
          *              how the application runs as follows:<p>
@@ -184,36 +184,10 @@ public class Environment {
          */
         public static void main(String... args){
             
-            String argument;
-            for(int i=0; i<=args.length; i++){
-                if(i==0){
-                    argument = (args.length==0)? "basic" : args[i]; 
-                }
-                else{
-                    argument = args[i];
-                }
+            String argument = (args.length==0)? "basic" : args[0]; 
+            
                 switch(argument){
-                    default:
-                        System.out.println("Unrecognized Argument: "+argument+"\n"
-                                + "Running in \"basic\" mode.");
-                        loadList();
-                        mapAllCurrentDatasets();
-                        try {
-                            UIManager.setLookAndFeel(new FlatLightLaf());
-
-                        } catch (Exception ex) {
-                            ex.printStackTrace();
-                        }
-
-                        SwingUtilities.invokeLater(new Runnable() {
-                            @Override
-                            public void run() {
-                                new Dashboard();
-                            }
-                        });
-                        
-                        
-                        break; 
+                    
                         
                     case("basic"):
                         loadList();
@@ -242,8 +216,29 @@ public class Environment {
                         loadList();
                         mapAllDatasetsUpdate();
                         break;
+                        
+                    default:
+                        System.out.println("Unrecognized Argument: "+argument+"\n"
+                                + "Running in \"basic\" mode.");
+                        loadList();
+                        mapAllCurrentDatasets();
+                        try {
+                            UIManager.setLookAndFeel(new FlatLightLaf());
+
+                        } catch (Exception ex) {
+                            ex.printStackTrace();
+                        }
+
+                        SwingUtilities.invokeLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                new Dashboard();
+                            }
+                        });
+                        
+                        
+                        break; 
 
                 }
             }
-        }
 }
