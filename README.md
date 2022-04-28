@@ -1,3 +1,8 @@
+# THIS NO LONGER WORKS, THE DATASET THAT THE PROGRAM ACCESSED ONLINE IS NO LONGER AVAILABLE. 
+# ALSO IT IS OLD AND BAD, BUT I'LL LEAVE IT UP FOR THE MEMORIES AND AS PROOF I HAVE ALWAYS BEEN A NERD :) 
+
+
+
 # Ontario Covid-19 DAE
 
 This is a Java project me and my friend are working on a little bit for school, but mostly for fun (this is actually just extreme overkill for a Grade 12 Computer Science Project... we're nerds). The goal is to create an environment in Java built around [JTablesaw](https://github.com/jtablesaw/tablesaw) for accessing and visualizing the most recent Ontario COVID-19 data.   
